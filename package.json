@@ -1,0 +1,25 @@
+{
+  "name": "juliolmuller-overview",
+  "version": "2.0.0",
+  "private": true,
+  "author": "Julio L. Muller",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^11.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^14.17.5",
+    "@types/react": "^17.0.14",
+    "eslint": "^7.30.0",
+    "eslint-config-next": "^11.0.1",
+    "sass": "^1.35.2",
+    "typescript": "^4.3.5"
+  }
+}

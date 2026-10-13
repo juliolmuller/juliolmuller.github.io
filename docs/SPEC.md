@@ -17,7 +17,7 @@ Where this list and the body below disagree, this list wins. Rationale for each 
 
 - TypeScript is pinned to 6.0.x and ESLint to 9.x because of `typescript-eslint` and `jsx-a11y` peer ranges [D5, D6].
 - `@sanity/client` is used directly; `next-sanity` is not used [D7].
-- Caching uses Next 16 Cache Components (`'use cache'`, `cacheTag`, `cacheLife`); `dynamicParams` is not exported (its v16 default is equivalent to “on”) [D1].
+- Caching uses classic ISR (segment `revalidate`, `dynamicParams`, `fetch` tags); Cache Components is off because it cannot return real 404/308 statuses for on-demand params [D1b].
 - next-intl locale resolution uses `next/root-params` instead of `setRequestLocale` [D2].
 - Only `/` negotiates a locale; other unprefixed paths, and anonymous `/admin/**`, render the same global 404 [D3].
 - Public pages use `script-src 'self' 'unsafe-inline'` plus SRI on external chunks; admin pages use a nonce CSP [D4].

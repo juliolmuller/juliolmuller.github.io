@@ -1,0 +1,79 @@
+{
+  "name": "juliolmuller.com",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint --max-warnings=0 .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "i18n:check": "tsx scripts/i18n-check.ts",
+    "icons:audit": "tsx scripts/icons-audit.ts",
+    "check:seo": "tsx scripts/check-seo.ts",
+    "sanity:seed": "tsx scripts/seed-sanity.ts",
+    "admin:hash": "tsx scripts/admin-hash.ts",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "geist": "^1.7.2",
+    "jose": "^6.2.12",
+    "lucide-react": "^1.55.0",
+    "motion": "^14.1.0",
+    "next": "16.4.0",
+    "next-intl": "^4.14.9",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "^0.0.1",
+    "tailwind-merge": "^3.7.0",
+    "zod": "^4.6.6",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.64.0",
+    "@tailwindcss/turbopack": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.1.2",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "16.4.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "html-validate": "^11.16.2",
+    "husky": "^9.1.7",
+    "jsdom": "^30.1.2",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "schema-dts": "^2.1.0",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.3"
+  },
+  "packageManager": "pnpm@12.8.1",
+  "type": "module",
+  "engines": {
+    "node": ">=24.11.0 <25"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --max-warnings=0 --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yml,yaml,mjs}": [
+      "prettier --write"
+    ]
+  }
+}

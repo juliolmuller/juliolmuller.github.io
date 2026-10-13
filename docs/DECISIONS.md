@@ -47,7 +47,7 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 
 ## 3. Architecture summary
 
-- **Rendering.** All public routes under `src/app/[locale]` are prerendered at build (`generateStaticParams` for locales and known slugs) and cached with Cache Components (`'use cache'` + `cacheTag` + a custom `cacheLife` profile with a 24 h revalidate). Unknown slugs render on request and are cached afterwards. The admin tree (`src/app/admin`) is fully dynamic (reads cookies), `no-store`, nonce-CSP.
+- **Rendering.** All public routes under `src/app/[locale]` are prerendered at build (`generateStaticParams` for locales and known slugs) with classic ISR (24 h `revalidate`, `fetch` tags; see D1b, which supersedes the original Cache Components plan). Unknown slugs render blocking on request and are cached afterwards. The admin tree (`src/app/admin`) is fully dynamic (reads cookies), `no-store`, nonce-CSP.
 - **Data.** `ContentRepository` interface → `sanity` adapter (GROQ over `@sanity/client`, server-only, every read wrapped in a `'use cache'` function tagged `content:*`) and `fixtures` adapter (in-memory, writable outside production). zod schemas in `src/lib/content/schema.ts` are the single contract; types are `z.infer`. Locale resolution happens inside the repository, never in components.
 - **Request interception.** One `src/proxy.ts` (Node runtime, the v16 default) with three jobs, in order: (1) canonicalization (lowercase → 308); (2) admin gate for `/admin/:path*` (JWT verify with `jose`; failure → rewrite to the global 404); (3) locale negotiation for `/` only, delegated to next-intl's middleware. Admin nonce CSP is generated here.
 - **Client islands.** Header scroll state, nav indicator, mobile menu, language switcher enhancement, motion-pause toggle, reveal wrapper, counters, card spotlight, filter animation, tech sphere (lazy), window manager + terminal (lazy, mounted in `[locale]/layout.tsx`), lightbox (lazy). Everything else is RSC.
@@ -62,6 +62,13 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 - **Context.** Next 16 stabilized `cacheComponents` (`'use cache'`, `cacheTag`, `cacheLife`, PPR by default). Its docs say it becomes the only model in the next major. Route segment configs `revalidate`, `dynamic` and `dynamicParams` are rejected when it is on. The spec asks for static prerendering + tag ISR, `dynamicParams` on, a real HTTP 404 for unknown slugs and a real 308 for `previousSlugs`.
 - **Decision.** Enable `cacheComponents: true` and `partialPrefetching: true`. Repository reads are `'use cache'` functions with `cacheTag(...)` and `cacheLife('content')` (custom profile: `revalidate: 86400`). `dynamicParams` is not exported; the v16 default (unknown params render on request) is equivalent to "on". The project page awaits its data at the top level (outside any `Suspense`) so `notFound()` / `permanentRedirect()` run before the shell is flushed.
 - **Consequence.** A Phase 1 spike MUST prove, against `next build && next start`, that an unknown slug returns status 404 (not a streamed 200) and a previous slug returns 308 with a `Location` header. If either fails, switch to the classic model (`cacheComponents` off, `fetch` tags / `unstable_cache`, `revalidate = 86400`, `dynamicParams = true`) and record a superseding decision. No other code depends on which model wins because caching is confined to the repository adapters and route files.
+
+### D1b — Caching model: classic ISR (supersedes D1)
+
+- **Context.** The Phase 1 test on `next build && next start` with Cache Components gave `200` for an unknown slug (the 404 UI was streamed under the fallback shell) and `200` plus a client-side redirect for a previous slug. The installed docs confirm it (`loading.md` → "Status codes": streamed responses always start with `200`) and suggest validating slugs in the proxy instead, which would need a slug index fetched by the proxy on every project request. The same applies to `?page=` beyond the last page.
+- **Decision.** `cacheComponents` stays off. Routes use segment config: `revalidate = 86400` as the stale-content fallback, `dynamicParams = true` on `projects/[slug]`, `generateStaticParams` for locales and known slugs. Sanity reads go through a small typed GROQ-over-HTTP helper using `fetch` with `next: { tags }` (`@sanity/client` 8 has no Next fetch integration; it is kept for writes and asset uploads). `unstable_cache` is not used (marked as replaced in v16). The fixtures adapter has no fetch, so admin writes call `updateTag` for Sanity tags **and** `revalidatePath` for the affected routes.
+- **Verified.** With this setup the production server answers `/en/projects/nope` → `404`, `/en/projects/old-alpha` → `308 Location: /en/projects/alpha`, and `/en`, `/pt` and known slugs are prerendered (`●`).
+- **Consequence.** Migrating to Cache Components later (it becomes mandatory in the next major) needs the proxy slug check; caching is confined to the repository adapters and route segment configs, so the change stays contained. `next/root-params` works without Cache Components.
 
 ### D2 — next-intl: root params instead of `setRequestLocale`
 
@@ -164,6 +171,22 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 - **Rate limiting on Vercel**: the in-memory limiter is per instance; production SHOULD set the Upstash vars. `docs/ADMIN.md` documents this.
 - **Admin `lang`**: `admin/layout.tsx` is a root layout with `<html lang="en">`.
 - **`/dev/ui`**: lives at `src/app/dev/ui/page.tsx`, calls `notFound()` when `NODE_ENV === 'production'`, excluded from the sitemap; it is also outside `[locale]`, so it follows the D3 rule in production (404).
+
+### D18 — Locale negotiation written in the proxy, not next-intl's middleware
+
+- **Context.** next-intl's middleware manages the `NEXT_LOCALE` cookie by its own rules and redirects every unprefixed path. The spec wants the cookie written only on an explicit switch and negotiation only on `/`.
+- **Decision.** `src/i18n/negotiate.ts` (pure, unit-tested: cookie → `Accept-Language` with q-values → `en`) is called by `src/proxy.ts` for `/` only (307, `Vary: Accept-Language, Cookie`, `Cache-Control: private, no-store`). next-intl routing sets `localeCookie: false`, `localeDetection: false`. The language switcher writes the cookie on click.
+- **Consequence.** Without JavaScript the switch still works (plain links) but no preference is saved; the next visit to `/` falls back to `Accept-Language`.
+
+### D19 — The global 404 is `global-not-found.tsx` (experimental flag)
+
+- **Context.** The public root layout is `[locale]/layout.tsx` and the admin has its own root layout, so there is no single layout to build a shared 404 from; the installed docs recommend `global-not-found.js` for exactly this case.
+- **Decision.** `experimental.globalNotFound: true`. The proxy rewrites every path whose first segment is not a locale or a known root file (including anonymous `/admin/**`) to `/404`, which the router cannot match. `[locale]/[...rest]/page.tsx` calls `notFound()` so `/en/unknown` gets the localized 404 with status 404.
+- **Verified.** `/random`, `/admin`, `POST /admin`, `/admin/api/upload` and `/foo.php` all return `404` with the same body.
+
+### D20 — Prettier preferences
+
+- **Decision.** Taken from the owner's editor settings: `singleQuote`, `trailingComma: all`, `printWidth: 80`, semicolons, 2 spaces, plus the Tailwind plugin. `endOfLine` is `lf` (the editor default is `crlf`, but the repo lives in WSL/Linux and CI runs on Linux); `.gitattributes` enforces it.
 
 ## 5. Contradictions found in the spec and how they are resolved
 

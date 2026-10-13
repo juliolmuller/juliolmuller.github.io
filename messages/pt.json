@@ -1,5 +1,61 @@
 {
+  "meta": {
+    "siteDescription": "{name} é {jobTitle} em {city} e cria plataformas web, APIs, apps mobile e desktop, automações e integrações de ponta a ponta."
+  },
+  "a11y": {
+    "skipToContent": "Pular para o conteúdo principal",
+    "languageChanged": "Idioma alterado para português",
+    "opensInNewTab": "(abre em uma nova aba)",
+    "pauseAnimations": "Pausar animações",
+    "resumeAnimations": "Retomar animações",
+    "animationsPaused": "Animações pausadas",
+    "animationsResumed": "Animações retomadas"
+  },
+  "header": {
+    "homeLabel": "{name}, voltar ao topo",
+    "primaryNav": "Principal",
+    "nav": {
+      "about": "Sobre",
+      "experience": "Experiência",
+      "stack": "Stack",
+      "work": "Projetos",
+      "contact": "Contato"
+    },
+    "backToWork": "Voltar aos projetos",
+    "openMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "menuTitle": "Menu",
+    "language": "Idioma",
+    "languageNames": {
+      "en": "English",
+      "pt": "Português"
+    },
+    "languageShort": {
+      "en": "EN",
+      "pt": "PT"
+    }
+  },
+  "hero": {
+    "eyebrow": "{jobTitle} · {city}"
+  },
+  "footer": {
+    "copyright": "© {year} {name}",
+    "builtBy": "Projetado e desenvolvido por {name}.",
+    "accessibility": "Acessibilidade",
+    "backToTop": "Voltar ao topo",
+    "terminalHint": "Pressione {shortcut} para abrir o terminal",
+    "footerNav": "Rodapé"
+  },
   "errors": {
-    "notFoundTitle": "404 — comando não encontrado"
+    "notFoundTitle": "404 — comando não encontrado",
+    "notFoundText": "A página que você procurou não existe ou mudou de endereço.",
+    "notFoundPrompt": "visitor@julio-muller:~$ cd {path}",
+    "backHome": "Voltar ao início",
+    "errorTitle": "Algo quebrou do meu lado",
+    "errorText": "Um erro inesperado impediu esta página de carregar. Tente de novo e, se continuar acontecendo, volte ao início.",
+    "tryAgain": "Tentar de novo"
+  },
+  "devUi": {
+    "title": "Componentes de UI"
   }
 }

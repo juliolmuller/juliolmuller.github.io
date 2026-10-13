@@ -1,3 +1,20 @@
-export default function LocaleNotFound() {
-  return <h1>LOCALE 404</h1>;
+import { getLocale, getTranslations } from 'next-intl/server';
+
+import { NotFoundView } from '@/components/layout/not-found-view';
+
+export default async function LocaleNotFound() {
+  const [t, locale] = await Promise.all([
+    getTranslations('errors'),
+    getLocale(),
+  ]);
+
+  return (
+    <NotFoundView
+      title={t('notFoundTitle')}
+      text={t('notFoundText')}
+      prompt={t('notFoundPrompt', { path: '???' })}
+      homeHref={`/${locale}`}
+      homeLabel={t('backHome')}
+    />
+  );
 }

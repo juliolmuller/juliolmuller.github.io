@@ -13,37 +13,37 @@ Resolved on 2026-10-13 against the npm registry and the docs bundled inside the 
 
 Latest stable unless noted. Majors are pinned with `^`; exact versions come from the lockfile.
 
-| Package | Version | Note |
-| --- | --- | --- |
-| Node | 24 LTS | `.nvmrc` = `24`, `engines.node` = `>=24.11 <25` |
-| pnpm | 12.x | `packageManager` field pinned |
-| next / eslint-config-next | 16.4.0 | App Router, `proxy.ts`, Turbopack default |
-| react / react-dom | 19.3.x | |
-| typescript | **6.0.x** (not 7.0.2) | D5 |
-| eslint | **9.39.x** (not 10.x) | D6 |
-| typescript-eslint | 8.71.x | peer: TS `<6.1` |
-| eslint-plugin-jsx-a11y | 6.10.2 | peer: ESLint `<=9` |
-| tailwindcss / @tailwindcss/postcss | 4.3.x | CSS-first `@theme`, no JS config |
-| next-intl | 4.14.x | D2 |
-| motion | 14.1.x | `motion/react`, `LazyMotion` + `domAnimation` |
-| zustand | 5.0.x | |
-| @sanity/client | 8.9.x | D7 (no `next-sanity`) |
-| @sanity/image-url | 2.1.x | |
-| zod | 4.6.x | |
-| sharp | 0.35.x | |
-| jose | 6.2.x | |
-| react-markdown / remark-gfm / rehype-sanitize | 10.1 / 4.0 / 6.0 | |
-| simple-icons | 16.35.x | D13 |
-| @iconify-json/devicon | 1.2.x | D13 |
-| lucide-react | 1.55.x | |
-| vitest | 5.0.x | jsdom env for component tests |
-| @playwright/test / @axe-core/playwright | 1.64 / 4.13 | |
-| prettier / prettier-plugin-tailwindcss | 3.9 / 0.8 | |
-| schema-dts / html-validate | 2.1 / 11.16 | |
-| class-variance-authority / tailwind-merge / clsx | 0.7 / 3.7 / latest | |
-| @upstash/redis | 1.39.x | optional rate-limit adapter |
-| husky / lint-staged | 9.1 / 17.6 | |
-| geist | 1.7.x | via `next/font/local` from the package; JetBrains Mono via `next/font/google` (self-hosted at build) |
+| Package                                          | Version               | Note                                                                                                 |
+| ------------------------------------------------ | --------------------- | ---------------------------------------------------------------------------------------------------- |
+| Node                                             | 24 LTS                | `.nvmrc` = `24`, `engines.node` = `>=24.11 <25`                                                      |
+| pnpm                                             | 12.x                  | `packageManager` field pinned                                                                        |
+| next / eslint-config-next                        | 16.4.0                | App Router, `proxy.ts`, Turbopack default                                                            |
+| react / react-dom                                | 19.3.x                |                                                                                                      |
+| typescript                                       | **6.0.x** (not 7.0.2) | D5                                                                                                   |
+| eslint                                           | **9.39.x** (not 10.x) | D6                                                                                                   |
+| typescript-eslint                                | 8.71.x                | peer: TS `<6.1`                                                                                      |
+| eslint-plugin-jsx-a11y                           | 6.10.2                | peer: ESLint `<=9`                                                                                   |
+| tailwindcss / @tailwindcss/postcss               | 4.3.x                 | CSS-first `@theme`, no JS config                                                                     |
+| next-intl                                        | 4.14.x                | D2                                                                                                   |
+| motion                                           | 14.1.x                | `motion/react`, `LazyMotion` + `domAnimation`                                                        |
+| zustand                                          | 5.0.x                 |                                                                                                      |
+| @sanity/client                                   | 8.9.x                 | D7 (no `next-sanity`)                                                                                |
+| @sanity/image-url                                | 2.1.x                 |                                                                                                      |
+| zod                                              | 4.6.x                 |                                                                                                      |
+| sharp                                            | 0.35.x                |                                                                                                      |
+| jose                                             | 6.2.x                 |                                                                                                      |
+| react-markdown / remark-gfm / rehype-sanitize    | 10.1 / 4.0 / 6.0      |                                                                                                      |
+| simple-icons                                     | 16.35.x               | D13                                                                                                  |
+| @iconify-json/devicon                            | 1.2.x                 | D13                                                                                                  |
+| lucide-react                                     | 1.55.x                |                                                                                                      |
+| vitest                                           | 5.0.x                 | jsdom env for component tests                                                                        |
+| @playwright/test / @axe-core/playwright          | 1.64 / 4.13           |                                                                                                      |
+| prettier / prettier-plugin-tailwindcss           | 3.9 / 0.8             |                                                                                                      |
+| schema-dts / html-validate                       | 2.1 / 11.16           |                                                                                                      |
+| class-variance-authority / tailwind-merge / clsx | 0.7 / 3.7 / latest    |                                                                                                      |
+| @upstash/redis                                   | 1.39.x                | optional rate-limit adapter                                                                          |
+| husky / lint-staged                              | 9.1 / 17.6            |                                                                                                      |
+| geist                                            | 1.7.x                 | via `next/font/local` from the package; JetBrains Mono via `next/font/google` (self-hosted at build) |
 
 ## 3. Architecture summary
 
@@ -188,6 +188,23 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 
 - **Decision.** Taken from the owner's editor settings: `singleQuote`, `trailingComma: all`, `printWidth: 80`, semicolons, 2 spaces, plus the Tailwind plugin. `endOfLine` is `lf` (the editor default is `crlf`, but the repo lives in WSL/Linux and CI runs on Linux); `.gitattributes` enforces it.
 
+### D21 — Inline motion-init script
+
+- **Context.** A persisted "Pause animations" choice must apply before first paint, or the hero animates for a frame. The spec allows `dangerouslySetInnerHTML` only for JSON-LD.
+- **Decision.** One constant, dependency-free inline script (`src/lib/motion-init.ts`) in `<head>` sets `data-motion='reduced'` from `localStorage`. It contains no interpolated user or content data. `<html>` uses `suppressHydrationWarning` for that attribute.
+- **Consequence.** Second, documented exception to the `dangerouslySetInnerHTML` rule; covered by the public CSP's `script-src 'unsafe-inline'` (D4).
+
+### D22 — Nav indicator without Motion `layoutId`
+
+- **Context.** `layoutId` requires Motion's `domMax` feature bundle (~10 KB gzip more than `domAnimation`), against the 150 KB initial-JS budget.
+- **Decision.** The indicator is an absolutely positioned pill whose `transform` and `width` are set from the active link's box and animated with a CSS transition (`--ease-out-expo`). Motion stays lazy (`LazyMotion` + async `domAnimation`).
+- **Consequence.** Same visual result; Motion layout animations remain available for the portfolio filter (loaded only on `/projects`).
+
+### D23 — axe runs on Chromium projects
+
+- **Context.** `@axe-core/playwright` hangs inside WebKit's `page.evaluate` in this environment (timeouts, no violations reported).
+- **Decision.** axe checks run on the desktop Chromium and mobile (Pixel 7, Chromium) projects; WebKit runs every functional test. axe rules evaluate the DOM and are engine-agnostic.
+
 ## 5. Contradictions found in the spec and how they are resolved
 
 1. `dynamicParams` "stays on" (§3.1, §8.5) vs Cache Components rejecting the export → D1.
@@ -209,7 +226,7 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 - **R3 — Vercel 4.5 MB request body limit** vs 8 MB images / 10 MB PDFs. Options in order: client-side downscale before upload for images (canvas, still re-encoded server-side with `sharp`), and for PDFs either cap at 4.5 MB on Vercel or use a short-lived Sanity upload done server-side from a chunked upload. Default chosen: enforce `min(spec limit, platform limit)` and show the effective limit in the admin. Decide definitively in Phase 8.
 - **R4 — Devicon single-tone legibility (D13).** Mitigated by the contact sheet review and monogram fallback.
 - **R5 — Lighthouse Performance ≥ 95 on mobile** with Motion + an always-mounted window manager. Mitigation: window manager shell is a tiny client component; terminal, sphere and Motion features load lazily (`LazyMotion`), dock chip is plain CSS until interaction.
-- **R6 — Activity-preserved routes (Cache Components)** keep hidden routes mounted; rAF loops (sphere, aurora spotlight) must stop on `visibilitychange` *and* when their route is hidden. Effects are cleaned up on hide per the docs; tests will assert no rAF runs on a hidden route.
+- **R6 — Activity-preserved routes (Cache Components)** keep hidden routes mounted; rAF loops (sphere, aurora spotlight) must stop on `visibilitychange` _and_ when their route is hidden. Effects are cleaned up on hide per the docs; tests will assert no rAF runs on a hidden route.
 - **R7 — Constant-time 404 for admin.** Proxy JWT verification adds microseconds; acceptable ("comparable timing"). The `authenticate` action delay (≥ 800 ms + jitter) is the real timing equalizer.
 - **R8 — Server Action origin check behind proxies.** Vercel sets the forwarded host correctly; self-hosting docs must mention `serverActions.allowedOrigins` if a reverse proxy rewrites hosts.
 

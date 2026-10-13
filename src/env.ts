@@ -67,7 +67,8 @@ export const isProduction = env.NODE_ENV === 'production';
 
 /** Indexable only on the production deployment (never on previews). */
 export const isIndexable =
-  isProduction && (env.VERCEL_ENV === undefined || env.VERCEL_ENV === 'production');
+  isProduction &&
+  (env.VERCEL_ENV === undefined || env.VERCEL_ENV === 'production');
 
 export const contentSource: 'sanity' | 'fixtures' =
   env.CONTENT_SOURCE ??

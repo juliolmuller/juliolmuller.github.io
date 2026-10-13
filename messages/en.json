@@ -1,5 +1,61 @@
 {
+  "meta": {
+    "siteDescription": "{name} is a {jobTitle} in {city} who designs and builds web platforms, APIs, mobile and desktop apps, automations and integrations."
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "languageChanged": "Language changed to English",
+    "opensInNewTab": "(opens in a new tab)",
+    "pauseAnimations": "Pause animations",
+    "resumeAnimations": "Resume animations",
+    "animationsPaused": "Animations paused",
+    "animationsResumed": "Animations resumed"
+  },
+  "header": {
+    "homeLabel": "{name}, back to top",
+    "primaryNav": "Primary",
+    "nav": {
+      "about": "About",
+      "experience": "Experience",
+      "stack": "Stack",
+      "work": "Work",
+      "contact": "Contact"
+    },
+    "backToWork": "Back to work",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menuTitle": "Menu",
+    "language": "Language",
+    "languageNames": {
+      "en": "English",
+      "pt": "Português"
+    },
+    "languageShort": {
+      "en": "EN",
+      "pt": "PT"
+    }
+  },
+  "hero": {
+    "eyebrow": "{jobTitle} · {city}"
+  },
+  "footer": {
+    "copyright": "© {year} {name}",
+    "builtBy": "Designed and built by {name}.",
+    "accessibility": "Accessibility",
+    "backToTop": "Back to top",
+    "terminalHint": "Press {shortcut} to open the terminal",
+    "footerNav": "Footer"
+  },
   "errors": {
-    "notFoundTitle": "404 — command not found"
+    "notFoundTitle": "404 — command not found",
+    "notFoundText": "The page you asked for does not exist, or it moved somewhere else.",
+    "notFoundPrompt": "visitor@julio-muller:~$ cd {path}",
+    "backHome": "Back to home",
+    "errorTitle": "Something broke on my side",
+    "errorText": "An unexpected error stopped this page from loading. Try again, and if it keeps happening, head back home.",
+    "tryAgain": "Try again"
+  },
+  "devUi": {
+    "title": "UI components"
   }
 }

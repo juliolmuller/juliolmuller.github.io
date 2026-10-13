@@ -30,6 +30,17 @@ const SAME_MESSAGE_KEYS = new Set([
   'header.languageShort.en',
   'header.languageShort.pt',
   'errors.notFoundPrompt',
+  'meta.homeTitle',
+  'stack.eyebrow',
+  'stack.categories.frontend',
+  'work.kinds.web',
+  'work.kinds.mobile',
+  'work.kinds.desktop',
+  'work.kinds.open-source',
+  'projects.filters.web',
+  'projects.filters.mobile',
+  'projects.filters.desktop',
+  'projects.filters.open-source',
 ]);
 
 const PROPER_NOUNS = new Set([

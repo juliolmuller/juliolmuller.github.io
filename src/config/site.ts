@@ -5,6 +5,8 @@
 export const owner = {
   name: 'Julio L. Muller',
   shortName: 'Julio Muller',
+  givenName: 'Julio',
+  familyName: 'Muller',
   initials: 'JM',
   jobTitle: 'Senior Full Stack Software Engineer',
   city: 'Curitiba',

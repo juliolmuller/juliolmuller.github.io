@@ -255,6 +255,42 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 - **Decision.** Project `njcnsmax` has two private datasets: `production` (real content, entered through the admin) and `development` (fictional seed, the default for local work and previews). `bun run sanity:seed` writes with `createOrReplace` in one transaction, uploads assets (Sanity deduplicates by hash, and only `lqip` metadata is extracted), refuses `production` without `--force`, and `--reset` deletes only `isFixture == true` documents after the dataset name is typed on a TTY. `--dry-run` converts without network writes.
 - **Consequence.** Seeding is repeatable and can't touch real documents. Production stays empty until Phase 8 unless someone forces it.
 
+### D31 — Open Graph images via `next/og`
+
+- **Context.** §13.8 wants a 1200×630 dark template per page and locale, with fonts and a photo when available.
+- **Decision.** One renderer (`src/lib/seo/og-image.tsx`) uses `ImageResponse` and Geist TTF from the `geist` package (Satori does not read `woff2`). Each public segment has `opengraph-image.tsx` and a `twitter-image.tsx` that re-exports it. Local fixture photos are read from `public/`; Sanity photos are fetched from their absolute URL.
+- **Consequence.** Social previews stay on-origin and prerender with the page. A unit test asserts the response is a PNG.
+
+### D32 — `check:seo` starts its own server
+
+- **Context.** §13.10 wants the checker to run against the production build with JavaScript disabled.
+- **Decision.** `scripts/check-seo.ts` starts `next start` on `SEO_PORT` (default 3101) unless `SEO_BASE_URL` is set. Canonicals are asserted against `NEXT_PUBLIC_SITE_URL`, not the fetch host, so CI can keep `SITE_URL` on 3100 while the checker uses 3101. Admin session checks wait for Phase 7; anonymous `/admin` is already covered by the 404 e2e.
+- **Consequence.** CI can run `check:seo` after `build` without sharing Playwright's port.
+
+### D33 — Invalid project query params are 404s
+
+- **Context.** D1b requires a real 404 for `?page=` past the last page. An unknown `?kind=` is the same class of problem.
+- **Decision.** `parseProjectsQuery` rejects unknown kinds and non-positive pages. The index also 404s when the kind has no visible projects or the page is past `totalPages`.
+- **Consequence.** Soft-404 filtered URLs never enter the index.
+
+### D34 — Project filter has no Motion layout animation
+
+- **Context.** §8.4 asks for Motion `layout` + `AnimatePresence` on the filter reflow. Putting the grid in a client component would force `ProjectCard` (and `next/image`) across the client boundary.
+- **Decision.** The filter is crawlable links; selecting a kind is a navigation, so the new grid is server-rendered. Cards stay Server Components wrapping the existing `Tilt` island. The live region still announces the count.
+- **Consequence.** No-JS and RSC stay the default. A client reflow can be added later without changing the URLs.
+
+### D35 — Projects index is dynamic
+
+- **Context.** Awaiting `searchParams` for `?kind=` / `?page=` makes the segment dynamic in Next 16, so `/[locale]/projects` is `ƒ` in the build output while Home, accessibility and known slugs stay `●`.
+- **Decision.** Leave it request-rendered (`revalidate = 86400`). The unfiltered HTML is still complete in the first response. Forcing `force-static` would drop the query.
+- **Consequence.** First hit after a deploy pays a server render; later hits are cached for 24 h.
+
+### D36 — axe ignores pending reveals; Playwright serializes under load
+
+- **Context.** Below-fold `Reveal` nodes get `data-reveal=pending` (opacity 0) after hydration. axe then reports contrast against the page background. Hiding them with `visibility: hidden` made full-page screenshots empty.
+- **Decision.** Leave pending reveals at `opacity: 0` only. axe calls `.exclude('[data-reveal=pending]')`. Screenshot tests emulate `prefers-reduced-motion` so every section stays visible. Playwright uses 2 workers, a 60 s test timeout, and `force` clicks plus `domcontentloaded` on the WebKit language/motion tests — looping hero motion never settles WebKit's actionability check.
+- **Consequence.** Contrast is audited on painted content. WebKit still runs the functional assertions; axe stays Chromium-only (D23).
+
 ## 5. Contradictions found in the spec and how they are resolved
 
 1. `dynamicParams` "stays on" (§3.1, §8.5) vs Cache Components rejecting the export → D1.
@@ -269,6 +305,8 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 10. Uploads up to 10 MB (§12.7) vs Vercel's function body limit → R3.
 11. Appendix C counts verified: 18 / 17 / 11 = 46; phones render 35 (§7 says "about 36": consistent).
 12. `sanity/schema/*.ts` with `defineType` (§11.10) vs no Studio dependency (D7) → D29.
+13. Filter Motion layout (§8.4) vs Server Component cards → D34.
+14. Prerendered `/projects` vs `searchParams` making the segment dynamic → D35.
 
 ## 6. Risks
 

@@ -218,6 +218,145 @@ html[data-motion='reduced'] *::after {
   }
 }
 
+/* --- Hero ------------------------------------------------------------- */
+
+.hero-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.55;
+  will-change: transform;
+  animation: aurora-a 34s ease-in-out infinite alternate;
+}
+
+.hero-blob-a {
+  top: -18%;
+  left: -12%;
+  width: min(48rem, 90vw);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgb(139 124 255 / 0.5), transparent 65%);
+}
+
+.hero-blob-b {
+  top: 10%;
+  right: -18%;
+  width: min(40rem, 80vw);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgb(76 201 240 / 0.38), transparent 65%);
+  animation-name: aurora-b;
+  animation-duration: 40s;
+}
+
+.hero-backdrop[data-paused='true'] .hero-blob {
+  animation-play-state: paused;
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 35%,
+    #000 20%,
+    transparent 75%
+  );
+}
+
+@keyframes aurora-a {
+  to {
+    transform: translate3d(12%, 10%, 0) scale(1.12);
+  }
+}
+
+@keyframes aurora-b {
+  to {
+    transform: translate3d(-14%, 8%, 0) scale(0.92);
+  }
+}
+
+/* Word-by-word masked reveal. Runs without JS too: content ends visible. */
+.reveal-word {
+  display: inline-block;
+  overflow: clip;
+  overflow-clip-margin: 0.1em;
+  vertical-align: bottom;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.reveal-word > span {
+  display: inline-block;
+  animation: word-up 700ms var(--ease-out-expo) both;
+  animation-delay: calc(var(--word-index, 0) * 60ms);
+}
+
+@keyframes word-up {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+@keyframes cue-bob {
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+/* --- Timeline ---------------------------------------------------------- */
+
+[data-timeline-node] {
+  transition: background-color 300ms var(--ease-out-expo);
+}
+
+[data-timeline-node][data-reached='true'] {
+  background-color: var(--color-accent-2);
+}
+
+[data-timeline-node][data-reached='true']::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 1px solid var(--color-accent-2);
+  animation: node-pulse 900ms var(--ease-out-expo) 1 forwards;
+}
+
+@keyframes node-pulse {
+  from {
+    opacity: 1;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+
+/* --- Routes ------------------------------------------------------------ */
+
+.route-fade {
+  animation: route-fade 280ms var(--ease-out-expo) both;
+}
+
+@keyframes route-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Delayed entrances must not wait out their delay with reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-word > span,
+  .route-fade {
+    animation: none !important;
+  }
+}
+
+html[data-motion='reduced'] :is(.reveal-word > span, .route-fade) {
+  animation: none !important;
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;
@@ -283,4 +422,128 @@ html[data-motion='reduced'] *::after {
 
 @utility safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Long-form Markdown (project bodies, bio). */
+@utility prose-site {
+  color: var(--color-text-2);
+  max-width: 68ch;
+
+  & > * + * {
+    margin-top: 1.1em;
+  }
+
+  & :is(h2, h3, h4, h5, h6) {
+    color: var(--color-text-1);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    scroll-margin-top: 96px;
+  }
+
+  & h2 {
+    margin-top: 2.2em;
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+
+  & h3 {
+    margin-top: 1.8em;
+    font-size: 1.1875rem;
+    line-height: 1.35;
+  }
+
+  & :is(h4, h5, h6) {
+    margin-top: 1.5em;
+    font-size: 1rem;
+  }
+
+  & :is(h2, h3, h4, h5, h6) + * {
+    margin-top: 0.6em;
+  }
+
+  & a {
+    color: var(--color-text-1);
+    text-decoration: underline;
+    text-decoration-color: rgb(76 201 240 / 0.6);
+    text-underline-offset: 3px;
+  }
+
+  & strong {
+    color: var(--color-text-1);
+    font-weight: 600;
+  }
+
+  & :is(ul, ol) {
+    padding-left: 1.25rem;
+  }
+
+  & ul {
+    list-style: disc;
+  }
+
+  & ol {
+    list-style: decimal;
+  }
+
+  & li + li {
+    margin-top: 0.4em;
+  }
+
+  & li::marker {
+    color: var(--color-text-3);
+  }
+
+  & blockquote {
+    border-left: 2px solid var(--color-accent-1);
+    padding-left: 1rem;
+    color: var(--color-text-1);
+  }
+
+  & :not(pre) > code {
+    border-radius: 6px;
+    background: var(--color-surface-2);
+    padding: 0.1em 0.35em;
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    color: var(--color-text-1);
+  }
+
+  & pre {
+    overflow-x: auto;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-1);
+    padding: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--color-text-1);
+  }
+
+  & hr {
+    border-color: var(--color-line);
+  }
+
+  & .md-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+  }
+
+  & table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+  }
+
+  & :is(th, td) {
+    border-bottom: 1px solid var(--color-line);
+    padding: 0.6rem 0.9rem;
+    text-align: left;
+  }
+
+  & th {
+    color: var(--color-text-1);
+    font-weight: 600;
+  }
 }

@@ -1,6 +1,7 @@
 {
   "meta": {
-    "siteDescription": "{name} is a {jobTitle} in {city} who designs and builds web platforms, APIs, mobile and desktop apps, automations and integrations."
+    "siteDescription": "{name} is a {jobTitle} in {city} who designs and builds web platforms, APIs, mobile and desktop apps, automations and integrations.",
+    "homeTitle": "{name} — {jobTitle}"
   },
   "a11y": {
     "skipToContent": "Skip to main content",
@@ -9,7 +10,9 @@
     "pauseAnimations": "Pause animations",
     "resumeAnimations": "Resume animations",
     "animationsPaused": "Animations paused",
-    "animationsResumed": "Animations resumed"
+    "animationsResumed": "Animations resumed",
+    "breadcrumb": "Breadcrumb",
+    "scrollRegion": "Scrollable content"
   },
   "header": {
     "homeLabel": "{name}, back to top",
@@ -36,7 +39,150 @@
     }
   },
   "hero": {
-    "eyebrow": "{jobTitle} · {city}"
+    "eyebrow": "{jobTitle} · {city}",
+    "rotatingPrefix": "I build",
+    "rotatingSentence": "I build {list}.",
+    "seeWork": "See my work",
+    "getInTouch": "Get in touch",
+    "resume": "Résumé (PDF)",
+    "currentRole": "Now: {title} at {company}",
+    "linksLabel": "Profiles and links",
+    "scrollCue": "Scroll to the about section"
+  },
+  "about": {
+    "eyebrow": "About",
+    "title": "Who I am and how I work",
+    "factsTitle": "Quick facts",
+    "location": "Based in",
+    "languages": "Languages",
+    "focus": "Focus",
+    "metricsLabel": "In numbers"
+  },
+  "experience": {
+    "eyebrow": "Experience",
+    "title": "Where I have worked",
+    "present": "Present",
+    "showMore": "Show details",
+    "technologies": "Technologies",
+    "educationTitle": "Education and certifications",
+    "kinds": {
+      "degree": "Degree",
+      "certification": "Certification"
+    },
+    "viewCredential": "View credential",
+    "viewCredentialLabel": "{title}: view credential (opens in a new tab)"
+  },
+  "stack": {
+    "eyebrow": "Stack",
+    "title": "Technologies I work with",
+    "lead": "The tools I reach for, grouped by where they fit in a system. A map of breadth, not a scoreboard.",
+    "categories": {
+      "language": "Languages",
+      "frontend": "Frontend",
+      "backend": "Backend & APIs",
+      "data": "Data & messaging",
+      "cloud": "Cloud & DevOps",
+      "integration": "Integrations & automation"
+    },
+    "practicesTitle": "Practices and concepts"
+  },
+  "work": {
+    "eyebrow": "Work",
+    "title": "Selected work",
+    "lead": "A few projects I am glad to talk about. Each one links to the context, the trade-offs and what came out of it.",
+    "allProjects": "All projects",
+    "visitApp": "Visit app",
+    "visitAppLabel": "Visit app: {title} (opens in a new tab)",
+    "viewDetails": "View details",
+    "viewDetailsLabel": "View details about {title}",
+    "moreTechnologies": "{count, plural, one {# more technology} other {# more technologies}}",
+    "kinds": {
+      "web": "Web",
+      "mobile": "Mobile",
+      "desktop": "Desktop",
+      "automation": "Automation",
+      "integration": "Integration",
+      "open-source": "Open source"
+    },
+    "statuses": {
+      "live": "Live",
+      "in-progress": "In progress",
+      "archived": "Archived",
+      "private": "Private"
+    }
+  },
+  "projects": {
+    "title": "Projects",
+    "intro": "Everything I can show: products, internal tools and experiments, each with the context behind it and what it changed.",
+    "metaDescription": "Projects by {name}: web platforms, mobile and desktop apps, automations and integrations, each with its context, approach and outcome.",
+    "pageTitle": "Projects, page {page}",
+    "filteredTitle": "Projects: {kind}",
+    "home": "Home",
+    "filterLabel": "Filter by kind",
+    "all": "All",
+    "filters": {
+      "web": "Web",
+      "mobile": "Mobile",
+      "desktop": "Desktop",
+      "automation": "Automation",
+      "integration": "Integrations",
+      "open-source": "Open source"
+    },
+    "showing": "{count, plural, one {Showing # project} other {Showing # projects}}",
+    "pagination": "Pagination",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "pageLabel": "Page {page}",
+    "pageOf": "Page {page} of {total}"
+  },
+  "project": {
+    "year": "Year",
+    "kind": "Kind",
+    "status": "Status",
+    "role": "Role",
+    "repository": "Repository",
+    "repositoryLabel": "{title}: repository (opens in a new tab)",
+    "context": "Context",
+    "approach": "Approach",
+    "highlights": "Highlights",
+    "outcome": "Outcome",
+    "details": "The full story",
+    "technologies": "Technologies",
+    "gallery": "Gallery",
+    "openImage": "Open image {index} of {total}: {alt}",
+    "closeImage": "Close",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "imageCounter": "{index} of {total}",
+    "related": "Related projects",
+    "projectNav": "More projects",
+    "previousProject": "Previous project",
+    "nextProject": "Next project",
+    "facts": "Project facts"
+  },
+  "recommended": {
+    "eyebrow": "Recommended",
+    "title": "Worth following",
+    "lead": "People whose work taught me something. Go read, watch or follow them.",
+    "visit": "Visit profile",
+    "visitLabel": "{name}: visit profile (opens in a new tab)"
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "fallbackHeading": "Let’s work together",
+    "fallbackText": "Have a hard problem, a product idea or a role in mind? Let’s talk.",
+    "email": "Email",
+    "copyEmail": "Copy email address",
+    "copied": "Copied",
+    "copyFailed": "Could not copy. Select the address instead.",
+    "emailAt": "at",
+    "emailDot": "dot",
+    "resume": "Download résumé (PDF)",
+    "resumeOther": "Also in <lang>{language}</lang> (PDF)",
+    "booking": "Book a call",
+    "bookingLabel": "Book a call (opens in a new tab)",
+    "phone": "Call {phone}",
+    "linksLabel": "Elsewhere"
   },
   "footer": {
     "copyright": "© {year} {name}",
@@ -44,7 +190,32 @@
     "accessibility": "Accessibility",
     "backToTop": "Back to top",
     "terminalHint": "Press {shortcut} to open the terminal",
-    "footerNav": "Footer"
+    "footerNav": "Footer",
+    "linksLabel": "Profiles"
+  },
+  "accessibility": {
+    "title": "Accessibility statement",
+    "metaDescription": "How this site meets WCAG 2.2 AA: keyboard support, screen readers, reduced motion, contrast, known limitations and how to report a problem.",
+    "intro": "I want everyone to be able to read this site and reach me, whatever device, input method or assistive technology they use.",
+    "standardTitle": "Standard",
+    "standardText": "The target is the Web Content Accessibility Guidelines (WCAG) 2.2 at level AA, with AAA contrast for body text where it is inexpensive.",
+    "measuresTitle": "What is in place",
+    "measures": {
+      "keyboard": "Every control works with a keyboard, with a visible focus ring and a skip link to the main content.",
+      "semantics": "Pages use landmarks, one main heading, real lists and native controls, and are tested with automated checks on every change.",
+      "motion": "Animations follow your system’s reduced-motion setting, and the “Pause animations” button in the footer stops them on any device.",
+      "contrast": "Text and controls meet AA contrast on every surface, and high-contrast and forced-colors modes are supported.",
+      "noScript": "All reading and navigation work without JavaScript: language switch, project filters and pagination are plain links."
+    },
+    "limitationsTitle": "Known limitations",
+    "limitations": {
+      "decorative": "Decorative animations, such as the hero background, are hidden from assistive technology and have no text equivalent because they carry no information.",
+      "thirdParty": "Linked external sites are outside my control and may not meet the same standard."
+    },
+    "feedbackTitle": "Feedback",
+    "feedbackText": "If something gets in your way, tell me and I will fix it. The contact section has my email.",
+    "feedbackLink": "Go to the contact section",
+    "lastReviewed": "Last reviewed on {date}."
   },
   "errors": {
     "notFoundTitle": "404 — command not found",

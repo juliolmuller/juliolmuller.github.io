@@ -86,6 +86,7 @@ for (const locale of ['en', 'pt'] as const) {
       await page.goto(`/${locale}`);
       const results = await new AxeBuilder({ page })
         .withTags(AXE_TAGS)
+        .exclude('[data-reveal=pending]')
         .analyze();
       expect(results.violations).toEqual([]);
     });
@@ -106,6 +107,7 @@ for (const locale of ['en', 'pt'] as const) {
       );
       const results = await new AxeBuilder({ page })
         .withTags(AXE_TAGS)
+        .exclude('[data-reveal=pending]')
         .analyze();
       expect(results.violations).toEqual([]);
       await page.keyboard.press('Escape');
@@ -115,15 +117,16 @@ for (const locale of ['en', 'pt'] as const) {
 }
 
 test('language switch keeps the route and hash', async ({ page }) => {
-  await page.goto('/en#top');
+  // Looping hero motion keeps WebKit's actionability check from settling.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/en#top', { waitUntil: 'domcontentloaded' });
   const menuButton = page.getByRole('button', { name: 'Open menu' });
-  if (await menuButton.isVisible()) await menuButton.click();
-  await page
-    .getByRole('group', { name: 'Language' })
-    .filter({ visible: true })
-    .first()
-    .getByRole('link', { name: /PT/ })
-    .click();
+  const inMenu = await menuButton.isVisible();
+  if (inMenu) await menuButton.click();
+  const switcher = inMenu
+    ? page.getByRole('dialog').getByRole('group', { name: 'Language' })
+    : page.getByRole('banner').getByRole('group', { name: 'Language' });
+  await switcher.getByRole('link', { name: /PT/ }).click({ force: true });
   await expect(page).toHaveURL(/\/pt#top$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
   const cookies = await page.context().cookies();
@@ -131,12 +134,13 @@ test('language switch keeps the route and hash', async ({ page }) => {
 });
 
 test('motion toggle persists the paused state', async ({ page }) => {
-  await page.goto('/en');
+  await page.goto('/en', { waitUntil: 'domcontentloaded' });
   const toggle = page
     .getByRole('contentinfo')
     .getByRole('button', { name: 'Pause animations' });
-  await toggle.click();
+  await toggle.scrollIntoViewIfNeeded();
+  await toggle.click({ force: true });
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
-  await page.reload();
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduced');
 });

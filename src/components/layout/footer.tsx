@@ -1,23 +1,67 @@
 import { ArrowUp } from 'lucide-react';
+import { locale as rootLocale } from 'next/root-params';
 import { getTranslations } from 'next-intl/server';
 
+import { LinkIcon } from '@/components/content/link-icon';
+import { externalRel } from '@/components/sections/links';
 import { owner } from '@/config/site';
 import { Link } from '@/i18n/navigation';
+import { isAppLocale } from '@/i18n/routing';
+import { getContent } from '@/lib/content';
 
 import { MotionToggle } from './motion-toggle';
 
 export async function Footer() {
-  const t = await getTranslations('footer');
+  const locale = await rootLocale();
+  const [t, tA11y, links] = await Promise.all([
+    getTranslations('footer'),
+    getTranslations('a11y'),
+    isAppLocale(locale)
+      ? getContent().getFeaturedLinks(locale)
+      : Promise.resolve([]),
+  ]);
+  const footerLinks = links.filter((link) =>
+    link.placements.includes('footer'),
+  );
   const year = new Date().getFullYear();
 
   return (
     <footer className="border-t border-line bg-bg-1">
       <div className="container-page flex flex-col gap-8 py-12 md:flex-row md:items-end md:justify-between">
-        <div className="space-y-2">
-          <p className="text-text-1">{t('builtBy', { name: owner.name })}</p>
-          <p className="text-small text-text-3">
-            {t('copyright', { year, name: owner.name })}
-          </p>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <p className="text-text-1">{t('builtBy', { name: owner.name })}</p>
+            <p className="text-small text-text-3">
+              {t('copyright', { year, name: owner.name })}
+            </p>
+          </div>
+          {footerLinks.length > 0 ? (
+            <ul aria-label={t('linksLabel')} className="-ml-3 flex gap-1">
+              {footerLinks.map((link) => {
+                const external = !link.url.startsWith('mailto:');
+                return (
+                  <li key={link.id}>
+                    <a
+                      href={link.url}
+                      target={external ? '_blank' : undefined}
+                      rel={
+                        external ? externalRel(link.isOwnProfile) : undefined
+                      }
+                      aria-label={
+                        external
+                          ? `${link.label} ${tA11y('opensInNewTab')}`
+                          : link.label
+                      }
+                      title={link.label}
+                      className="inline-flex size-11 items-center justify-center rounded-full text-text-2 transition-colors hover-fine:bg-surface-1 hover-fine:text-text-1"
+                    >
+                      <LinkIcon icon={link.icon} className="size-5" />
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
         </div>
 
         <nav aria-label={t('footerNav')}>

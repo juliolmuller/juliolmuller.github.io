@@ -15,13 +15,13 @@ import { ScrollProgress } from '@/components/layout/scroll-progress';
 import { SkipLink } from '@/components/layout/skip-link';
 import { Toaster } from '@/components/ui/toaster';
 import { owner, THEME_COLOR } from '@/config/site';
-import { env } from '@/env';
 import { isAppLocale, localeTags, routing } from '@/i18n/routing';
 import { MOTION_INIT_SCRIPT } from '@/lib/motion-init';
+import { siteMetadata } from '@/lib/seo/metadata';
 import { fontVariables } from '@/styles/fonts';
 
 /** Namespaces needed by client components; the rest stays on the server. */
-const CLIENT_NAMESPACES = ['a11y', 'header', 'errors'] as const;
+const CLIENT_NAMESPACES = ['a11y', 'header', 'errors', 'project'] as const;
 
 export const revalidate = 86400;
 
@@ -39,20 +39,13 @@ export const viewport: Viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('meta');
-  return {
-    metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
-    title: { default: owner.name, template: `%s | ${owner.name}` },
-    description: t('siteDescription', {
+  return siteMetadata(
+    t('siteDescription', {
       name: owner.name,
       jobTitle: owner.jobTitle,
       city: `${owner.city}, ${owner.country}`,
     }),
-    applicationName: owner.name,
-    authors: [{ name: owner.name }],
-    creator: owner.name,
-    publisher: owner.name,
-    formatDetection: { telephone: false, email: false, address: false },
-  };
+  );
 }
 
 export default async function LocaleLayout({

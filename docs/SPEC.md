@@ -29,6 +29,7 @@ Where this list and the body below disagree, this list wins. Rationale for each 
 - Both adapters share one pipeline (`createRepository`); adapters only fetch [D25]. Sanity reads use plain `fetch` with `cache: 'force-cache'` and tags; `@sanity/client` is for writes [D26].
 - The Studio schema is a single plain-data `sanity/schema.ts` (no `sanity` dependency), deployed to the datasets through Sanity's schema API [D29]. Fixture assets live in `public/fixtures` [D14].
 - Datasets: `production` (real) and `development` (fictional seed), both private, in project `njcnsmax` [D30].
+- OG/Twitter images are generated with `next/og` from a shared template [D31]. `check:seo` starts its own `next start` [D32]. Unknown `?kind=` / `?page=` on `/projects` are real 404s [D33]. The project filter is link navigation, not a client reflow [D34]. The projects index is request-rendered because it reads `searchParams` [D35]. axe excludes pending `Reveal` nodes; screenshot tests use reduced motion [D36].
 
 ## 0. Operating instructions (to the agent)
 

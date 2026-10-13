@@ -7,7 +7,7 @@ Resolved on 2026-10-13 against the npm registry and the docs bundled inside the 
 ## 1. Repository facts
 
 - Repo `juliolmuller/juliolmuller.github.io`, branch `next`, working tree empty (previous site cleared in `3637e7b`).
-- Local toolchain: Node 24.19.0 (current LTS line "Krypton"; latest 24.21.0), pnpm 12.8.1.
+- Local toolchain: Node 24.19.0 (current LTS line "Krypton"; latest 24.21.0), Bun 1.4.3 (D24; pnpm 12.8.1 until then).
 
 ## 2. Resolved versions
 
@@ -16,7 +16,7 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 | Package                                          | Version               | Note                                                                                                 |
 | ------------------------------------------------ | --------------------- | ---------------------------------------------------------------------------------------------------- |
 | Node                                             | 24 LTS                | `.nvmrc` = `24`, `engines.node` = `>=24.11 <25`                                                      |
-| pnpm                                             | 12.x                  | `packageManager` field pinned                                                                        |
+| Bun                                              | 1.4.x                 | Package manager and runtime, `packageManager` = `bun@1.4.3`, Vercel `bunVersion` = `1.4.x` (D24)     |
 | next / eslint-config-next                        | 16.4.0                | App Router, `proxy.ts`, Turbopack default                                                            |
 | react / react-dom                                | 19.3.x                |                                                                                                      |
 | typescript                                       | **6.0.x** (not 7.0.2) | D5                                                                                                   |
@@ -155,7 +155,8 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 
 ### D15 — Dependency build scripts allowlist
 
-- **Decision.** `pnpm-workspace.yaml` `onlyBuiltDependencies: [sharp, esbuild, @tailwindcss/oxide, unrs-resolver]` (final list from the first install). pnpm ≥10 blocks everything else by default.
+- ~~**Decision.** `pnpm-workspace.yaml` `onlyBuiltDependencies: [...]`.~~ Superseded by D24.
+- **Decision (D24).** `package.json` `trustedDependencies: []`. Bun blocks lifecycle scripts by default; the three it blocks (`@parcel/watcher`, `@swc/core`, `unrs-resolver`) are build-from-source fallbacks whose prebuilt binaries ship as optional dependencies. Add an entry only when a package fails without its script.
 
 ### D16 — View Transitions deferred
 
@@ -204,6 +205,17 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 
 - **Context.** `@axe-core/playwright` hangs inside WebKit's `page.evaluate` in this environment (timeouts, no violations reported).
 - **Decision.** axe checks run on the desktop Chromium and mobile (Pixel 7, Chromium) projects; WebKit runs every functional test. axe rules evaluate the DOM and are engine-agnostic.
+- **Addendum.** axe scans of animated UI (the mobile menu) wait for `getAnimations({ subtree: true })` to finish first; otherwise contrast is sampled mid fade-in and the test flakes.
+
+### D24 — Bun 1.4 as package manager and Vercel runtime
+
+- **Context.** Owner request: replace pnpm with Bun and pin Bun 1.4 on Vercel. Vercel's `bunVersion` accepts `"1.4.x"` or `"1.x"` (resolves to 1.3.x); setting it switches Vercel Functions to the Bun runtime (beta). For Next.js with ISR, Vercel requires `next dev/build/start` to run under `bun run --bun`.
+- **Decision.**
+  - `vercel.json`: `"bunVersion": "1.4.x"`, `installCommand: bun install --frozen-lockfile`. `packageManager: bun@1.4.3`, `engines.bun: >=1.4.0 <1.5.0`, `bun.lock` committed.
+  - `dev`/`build`/`start` use `bun run --bun next …`. Repo scripts run as `bun --conditions=react-server scripts/<name>.ts` (resolves `server-only` to its no-op export; `tsx` dropped).
+  - Node 24 stays for tooling that spawns `node` through shebangs: ESLint, Vitest, Playwright. `.nvmrc` and `engines.node` are kept, and CI installs both.
+  - `audit:deps` = `bun audit --audit-level=high --ignore=GHSA-vfj7-8cjw-p6xm`. That advisory (`braces` ≤ 3.0.3, ReDoS-style stack exhaustion) has no patched release and only reaches the tree through `eslint-config-next` → `fast-glob` (dev-only, never fed untrusted patterns). Remove the ignore when a fix ships.
+- **Consequence.** The proxy is expected to stay on Node (Next 16 proxies cannot set `runtime`; unconfirmed how Vercel maps it under `bunVersion`), so production likely mixes the Bun function runtime for pages and route handlers with Node for the proxy. Verified locally under Bun 1.4.3: lint, typecheck, 43 unit tests, build (`/en`, `/pt` ●), e2e 38 passed / 4 skipped. **Risk (speculative):** the Bun runtime is beta on Vercel; if ISR revalidation or `sharp` misbehaves there, remove `bunVersion` (Bun remains the package manager) and record it here.
 
 ## 5. Contradictions found in the spec and how they are resolved
 

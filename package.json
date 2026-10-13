@@ -3,21 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "bun run --bun next dev",
+    "build": "bun run --bun next build",
+    "start": "bun run --bun next start",
     "lint": "eslint --max-warnings=0 .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "next typegen && tsc --noEmit",
+    "typecheck": "bun run --bun next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "i18n:check": "tsx scripts/i18n-check.ts",
-    "icons:audit": "tsx scripts/icons-audit.ts",
-    "check:seo": "tsx scripts/check-seo.ts",
-    "sanity:seed": "tsx scripts/seed-sanity.ts",
-    "admin:hash": "tsx scripts/admin-hash.ts",
+    "audit:deps": "bun audit --audit-level=high --ignore=GHSA-vfj7-8cjw-p6xm",
+    "i18n:check": "bun --conditions=react-server scripts/i18n-check.ts",
+    "icons:audit": "bun --conditions=react-server scripts/icons-audit.ts",
+    "check:seo": "bun --conditions=react-server scripts/check-seo.ts",
+    "sanity:seed": "bun --conditions=react-server scripts/seed-sanity.ts",
+    "admin:hash": "bun --conditions=react-server scripts/admin-hash.ts",
     "prepare": "husky"
   },
   "dependencies": {
@@ -58,13 +59,13 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "schema-dts": "^2.1.0",
     "tailwindcss": "^4.3.3",
-    "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "vitest": "^5.0.3"
   },
-  "packageManager": "pnpm@12.8.1",
+  "packageManager": "bun@1.4.3",
   "type": "module",
   "engines": {
+    "bun": ">=1.4.0 <1.5.0",
     "node": ">=24.11.0 <25"
   },
   "lint-staged": {
@@ -75,5 +76,6 @@
     "*.{json,md,css,yml,yaml,mjs}": [
       "prettier --write"
     ]
-  }
+  },
+  "trustedDependencies": []
 }

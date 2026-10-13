@@ -19,7 +19,7 @@ export default defineConfig({
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
   ],
   webServer: {
-    command: `pnpm start -p ${PORT}`,
+    command: `bun run start -p ${PORT}`,
     url: `${baseURL}/en`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

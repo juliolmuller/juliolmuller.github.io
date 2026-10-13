@@ -146,12 +146,14 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
   - Simple Icons: TanStack Query → `reactquery`; Swagger / OpenAPI → `swagger`; Pub/Sub → `googlepubsub`; BigQuery → `googlebigquery`; everything else under its obvious slug.
   - Monogram: SQL (no vendor-neutral mark; `mysql`/`sqlite` would be misleading), Excel / Power Query, Power BI, SharePoint (absent from both sets).
 - **Consequence.** Devicon marks are multi-color; they render as `currentColor` single-tone paths, so `icons:audit` also writes a contact sheet (`.cache/icons-audit.html`) for visual review in Phase 2. Any illegible devicon mark falls back to the monogram.
+- **Update (Phase 2, audited).** `devicon` resolves through `@iconify-json/devicon-plain` (single-tone, MIT) first and the multicolor set second, converting only plain `path`/`circle`/`ellipse`/`rect`/`polygon` geometry; anything with gradients, transforms, strokes or `evenodd` is rejected. Result: 36 Simple Icons, 5 devicon-plain (Java, Zustand, AngularJS, gRPC, AWS), 5 monograms. VBA is a monogram after all: the `visualbasic` mark is VB.NET's. Monograms can be pinned with the `monogram` field (Excel / Power Query → `XL`, Power BI → `BI`). Dark brand colors (Next.js, Express, Fastify, Prisma, GitHub, Lua) need the Phase 4 luminance correction.
 
 ### D14 — Fixture images and PDFs are generated and committed
 
 - **Context.** The spec asks for a deterministic `sharp` generator. Running it at build would make builds depend on generation time and native deps.
 - **Decision.** `scripts/generate-fixtures.ts` (deterministic, seeded by slug) writes to `fixtures/images` and `fixtures/pdf`; outputs are committed (WebP/AVIF sized for 1600×1000; ~2–3 MB total). The PDF is a hand-built minimal PDF (no JS, no external fonts), no extra dependency.
 - **Consequence.** `fixtures` adapter serves them via a static route; the seed script uploads the same files.
+- **Update (Phase 2).** Outputs go to `public/fixtures/{images,pdf}` (Next serves them; `images.localPatterns` allows `/fixtures/images/**`, the proxy passes `/fixtures` through) plus a manifest, `src/lib/content/fixtures/assets.generated.ts` (dimensions, 20 px LQIP data URL, byte sizes). WebP q82 only, since `next/image` produces AVIF on demand: 13 images + 2 PDFs = 129 KB. Regenerate with `bun run fixtures:generate`; output is byte-stable.
 
 ### D15 — Dependency build scripts allowlist
 
@@ -217,6 +219,42 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
   - `audit:deps` = `bun audit --audit-level=high --ignore=GHSA-vfj7-8cjw-p6xm`. That advisory (`braces` ≤ 3.0.3, ReDoS-style stack exhaustion) has no patched release and only reaches the tree through `eslint-config-next` → `fast-glob` (dev-only, never fed untrusted patterns). Remove the ignore when a fix ships.
 - **Consequence.** The proxy is expected to stay on Node (Next 16 proxies cannot set `runtime`; unconfirmed how Vercel maps it under `bunVersion`), so production likely mixes the Bun function runtime for pages and route handlers with Node for the proxy. Verified locally under Bun 1.4.3: lint, typecheck, 43 unit tests, build (`/en`, `/pt` ●), e2e 38 passed / 4 skipped. **Risk (speculative):** the Bun runtime is beta on Vercel; if ISR revalidation or `sharp` misbehaves there, remove `bunVersion` (Bun remains the package manager) and record it here.
 
+### D25 — One content pipeline, two thin sources
+
+- **Context.** Two adapters must pass the same contract (§11.1) and handle invalid, hidden and untranslated documents identically.
+- **Decision.** Adapters implement `ContentSource` and only fetch raw documents in schema field names (`fixtures` clones memory; `sanity` runs GROQ projections that rename storage fields). `createRepository(source, logger)` owns the shared pipeline: strip nulls → fill an empty `pt` from `en` (warn `missing-translation`) → strict zod parse, skipping invalid documents (warn `invalid-document` with paths and codes, never values) → visibility filter → sort by `order`, then `id` → drop duplicate slugs → drop hidden or unknown technology references → resolve the locale and icons.
+- **Consequence.** Behavior can't diverge between adapters, and a test asserts deep equality of every repository method across both. A technology edit invalidates `content:technologies` only, because every read that filters technology references also carries that tag.
+
+### D26 — Sanity reads over plain `fetch` (amends D8)
+
+- **Context.** ISR needs Next's fetch cache with `next.tags`; authorized requests are only cached with an explicit `cache: 'force-cache'` (fetch API reference). Routing the client's request layer through Next's patched `fetch` is an implementation detail, not a contract.
+- **Decision.** `src/lib/content/sanity/http.ts` (server-only) calls `GET https://<projectId>.api.sanity.io/v<apiVersion>/data/query/<dataset>` with `perspective=published`, `returnQuery=false`, the Viewer token as a Bearer header, `cache: 'force-cache'`, `next: { revalidate: 86400, tags }`. No CDN (D8 unchanged). `@sanity/client` stays for writes and the seed. Errors carry the HTTP status only.
+- **Consequence.** Cache behavior is explicit and testable, and there is no client instance on the read path. Long GROQ queries go in the URL (≤ 1.5 KB URL-encoded today; Sanity asks for POST above 11 KB).
+
+### D27 — The Sanity adapter is contract-tested offline with groq-js
+
+- **Context.** CI has no Sanity credentials, and mocking query results would only test the mocks.
+- **Decision.** `tests/support/sanity-memory.ts` converts the fixture dataset into Sanity storage documents (the converter is the seed's own code, `sanity/documents.ts`), synthesizes `sanity.imageAsset`/`sanity.fileAsset` documents, and evaluates the adapter's real GROQ with `groq-js`. `groq-js` is banned outside `src/lib/content` and `scripts` by ESLint.
+- **Consequence.** Queries, projections, dereferences and tag wiring are exercised in CI. Remaining gap: `groq-js` vs the hosted engine. This is covered by the live smoke test after seeding (`docs/SANITY.md`).
+
+### D28 — Sanity storage shape and ids
+
+- **Context.** The schema is zod-first. Sanity also needs typed objects, keyed arrays and references.
+- **Decision.** Localized fields are `localeString` / `localeText` / `localeMarkdown` objects `{ en, pt }`. Array items get stable `_key`s (sha1 of the path). Technologies are reference arrays, images are `image` objects with a localized `alt` and `hotspot` (focal point), and slugs are `{ current }`. Singletons use their type as `_id` (`profile`, `contact`, `resume`); seeded collection documents use `<type>.<uuid-like sha1(type:key)>`, so re-seeding is idempotent. Documents created later by the admin use plain UUIDs; nothing depends on the id format.
+- **Consequence.** Ids with a dot are "path" ids that the public API hides; the dataset is private and every read is authenticated, so this is moot. To confirm on the live dataset: the published perspective still returns them.
+
+### D29 — Studio schema as plain data, deployed through MCP (amends §11.10)
+
+- **Context.** §11.10 asks for `sanity/schema/*.ts` with `defineType`. That requires the `sanity` package (Studio, React peers, styled-components) only to type-check data the app never runs.
+- **Decision.** One plain-data file, `sanity/schema.ts` (`schemaTypes`: 6 object types, 10 document types), mirrors the storage shape, with no `sanity` dependency. The same declaration is deployed to both datasets as the `default` workspace schema, so Sanity's tooling (Content Lake schema, MCP, a future Studio) knows the types; `bun run sanity:schema` prints it. Validation stays in zod. A unit test walks every converted fixture document and fails if a field is missing from the schema.
+- **Consequence.** A separate Studio can later `import { schemaTypes }` into `defineConfig` unchanged. Schema changes mean: edit `sanity/schema.ts` → test → redeploy (`docs/SANITY.md`).
+
+### D30 — Datasets and seeding
+
+- **Context.** Seed data is fictional and must never be mistaken for real content (data policy). Hidden items must not be publicly readable (§11.2).
+- **Decision.** Project `njcnsmax` has two private datasets: `production` (real content, entered through the admin) and `development` (fictional seed, the default for local work and previews). `bun run sanity:seed` writes with `createOrReplace` in one transaction, uploads assets (Sanity deduplicates by hash, and only `lqip` metadata is extracted), refuses `production` without `--force`, and `--reset` deletes only `isFixture == true` documents after the dataset name is typed on a TTY. `--dry-run` converts without network writes.
+- **Consequence.** Seeding is repeatable and can't touch real documents. Production stays empty until Phase 8 unless someone forces it.
+
 ## 5. Contradictions found in the spec and how they are resolved
 
 1. `dynamicParams` "stays on" (§3.1, §8.5) vs Cache Components rejecting the export → D1.
@@ -230,6 +268,7 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 9. Only `/` negotiates (§3.1, §6) vs next-intl redirecting every unprefixed path → D3.
 10. Uploads up to 10 MB (§12.7) vs Vercel's function body limit → R3.
 11. Appendix C counts verified: 18 / 17 / 11 = 46; phones render 35 (§7 says "about 36": consistent).
+12. `sanity/schema/*.ts` with `defineType` (§11.10) vs no Studio dependency (D7) → D29.
 
 ## 6. Risks
 
@@ -245,7 +284,7 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 ## 7. Assumptions
 
 - Production domain is `https://juliolmuller.com` (`NEXT_PUBLIC_SITE_URL`); preview deployments use their own URL and send `X-Robots-Tag: noindex` (`VERCEL_ENV !== 'production'`).
-- Sanity project and tokens do not exist yet; everything through Phase 7 runs on the fixtures adapter. Phase 8's real-dataset smoke test needs credentials from the owner.
+- Sanity project `njcnsmax` (organization `ow3ahfjbr`) exists with private `production` and `development` datasets (D30). The owner creates the tokens and keeps them in `.env.local`/Vercel; CI runs on fixtures.
 - HSTS `preload` is not added until the owner confirms.
 - GitHub Actions is available on the repo; Lighthouse CI runs with `@lhci/cli` against `next start`, no LHCI server (temporary public storage disabled; reports kept as artifacts).
 - The real résumé, photo and content will be entered later through the admin; nothing real is seeded.

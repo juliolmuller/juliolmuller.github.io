@@ -26,6 +26,9 @@ Where this list and the body below disagree, this list wins. Rationale for each 
 - The skip link reads “Skip to main content” [D17].
 - Hosting target is Vercel; upload limits are `min(spec limit, platform limit)` [D10, D11, R3].
 - Bun 1.4 replaces pnpm as package manager, and `vercel.json` pins `bunVersion: "1.4.x"` for the Vercel runtime. Read every `pnpm <x>` below as `bun run <x>` and `pnpm view` as `npm view` [D24].
+- Both adapters share one pipeline (`createRepository`); adapters only fetch [D25]. Sanity reads use plain `fetch` with `cache: 'force-cache'` and tags; `@sanity/client` is for writes [D26].
+- The Studio schema is a single plain-data `sanity/schema.ts` (no `sanity` dependency), deployed to the datasets through Sanity's schema API [D29]. Fixture assets live in `public/fixtures` [D14].
+- Datasets: `production` (real) and `development` (fictional seed), both private, in project `njcnsmax` [D30].
 
 ## 0. Operating instructions (to the agent)
 

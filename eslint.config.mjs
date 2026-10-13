@@ -17,6 +17,10 @@ export default defineConfig([
         'error',
         { 'ts-expect-error': 'allow-with-description', 'ts-ignore': true },
       ],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { ignoreRestSiblings: true, argsIgnorePattern: '^_' },
+      ],
       '@typescript-eslint/consistent-type-imports': [
         'error',
         { fixStyle: 'inline-type-imports' },
@@ -32,7 +36,7 @@ export default defineConfig([
           ],
           patterns: [
             {
-              group: ['@sanity/*', '**/lib/content/sanity/*'],
+              group: ['@sanity/*', 'groq-js', '**/lib/content/sanity/*'],
               message:
                 'Components never talk to Sanity; go through @/lib/content.',
             },
@@ -43,8 +47,24 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/lib/content/**', 'scripts/**', 'src/app/admin/**'],
+    files: ['src/lib/content/**', 'scripts/**', 'tests/support/**'],
     rules: { 'no-restricted-imports': 'off' },
+  },
+  {
+    files: ['src/app/admin/**', 'src/components/admin/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@sanity/*', 'groq-js', '**/lib/content/sanity/*'],
+              message: 'The admin goes through @/lib/content too.',
+            },
+          ],
+        },
+      ],
+    },
   },
   globalIgnores([
     '.next/**',

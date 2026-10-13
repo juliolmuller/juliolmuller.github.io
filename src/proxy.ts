@@ -12,6 +12,7 @@ const NOT_FOUND_PATH = '/404';
 /** Root-level files and route trees that are not localized. */
 const ROOT_PASSTHROUGH = new Set([
   'api',
+  'fixtures',
   'apple-icon',
   'icon',
   'icon.svg',

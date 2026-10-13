@@ -98,7 +98,12 @@ for (const locale of ['en', 'pt'] as const) {
       await page.setViewportSize({ width: 375, height: 812 });
       await page.goto(`/${locale}`);
       await page.getByRole('button', { name: /menu/i }).click();
-      await expect(page.getByRole('dialog')).toBeVisible();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      // Contrast is sampled mid fade-in otherwise.
+      await dialog.evaluate((el) =>
+        Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)),
+      );
       const results = await new AxeBuilder({ page })
         .withTags(AXE_TAGS)
         .analyze();

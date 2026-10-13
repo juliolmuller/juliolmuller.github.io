@@ -67,6 +67,8 @@ bun run sanity:seed --dataset production --force   # never for real content
 
 After seeding `development`, run `bun run content:smoke`. It reads every repository method in both locales from Sanity and from fixtures, and fails on any difference other than asset URLs, LQIPs and revision metadata, or on any content warning. The repository equality test proves the same offline against `groq-js` (D27); the live run covers the hosted GROQ engine, the auth header and the asset pipeline.
 
+Last run, 2026-10-13, on `development`: 86 documents and 15 assets seeded; re-seeding left the totals unchanged (101 documents, 0 drafts); `content:smoke` passed, with all 24 reads matching.
+
 ## Webhook (Phase 8)
 
 `POST /api/revalidate` with `SANITY_WEBHOOK_SECRET`, for edits made outside the admin (e.g. a Studio). It maps the document type to `content:*` tags (`tagsForDocument`) and calls `revalidateTag(tag, { expire: 0 })` (D9). Configure it in sanity.io/manage → API → Webhooks with the projection `{ _type, "slug": slug.current, previousSlugs }`, and filter to the dataset the deployment reads.

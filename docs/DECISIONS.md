@@ -241,7 +241,7 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 
 - **Context.** The schema is zod-first. Sanity also needs typed objects, keyed arrays and references.
 - **Decision.** Localized fields are `localeString` / `localeText` / `localeMarkdown` objects `{ en, pt }`. Array items get stable `_key`s (sha1 of the path). Technologies are reference arrays, images are `image` objects with a localized `alt` and `hotspot` (focal point), and slugs are `{ current }`. Singletons use their type as `_id` (`profile`, `contact`, `resume`); seeded collection documents use `<type>.<uuid-like sha1(type:key)>`, so re-seeding is idempotent. Documents created later by the admin use plain UUIDs; nothing depends on the id format.
-- **Consequence.** Ids with a dot are "path" ids that the public API hides; the dataset is private and every read is authenticated, so this is moot. To confirm on the live dataset: the published perspective still returns them.
+- **Consequence.** Ids with a dot are "path" ids that the public API hides; the dataset is private and every read is authenticated, so this is moot. Confirmed on `development` (2026-10-13): the published perspective returns all 86 seeded documents with a Viewer token.
 
 ### D29 — Studio schema as plain data, deployed through MCP (amends §11.10)
 

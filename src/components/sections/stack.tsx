@@ -21,7 +21,7 @@ export async function Stack({
     <section
       id="stack"
       aria-labelledby="stack-title"
-      className="border-y border-line bg-bg-1 section-y"
+      className="overflow-x-clip border-y border-line bg-bg-1 section-y"
     >
       <div className="container-page">
         <SectionHeader
@@ -31,8 +31,8 @@ export async function Stack({
           title={t('title')}
           lead={t('lead')}
         />
-        <TechCloudShell technologies={technologies} practices={practices} />
       </div>
+      <TechCloudShell technologies={technologies} practices={practices} />
     </section>
   );
 }

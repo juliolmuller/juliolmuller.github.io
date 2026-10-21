@@ -77,7 +77,7 @@ export const EDUCATION_QUERY = /* groq */ `*[_type == "education" && ${VISIBLE}]
   ${META}, kind, title, institution, start, end, url, order, visible
 }`;
 
-export const TECHNOLOGIES_QUERY = /* groq */ `*[_type == "technology" && ${VISIBLE}] | order(order asc){
+export const TECHNOLOGIES_QUERY = /* groq */ `*[_type == "technology" && ${VISIBLE}] | order(order asc, name asc){
   ${META}, name, category, iconSource, iconSlug,
   customSvg{ viewBox, paths }, monogram, brandColor, url, priority, order, visible
 }`;

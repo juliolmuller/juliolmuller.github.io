@@ -478,12 +478,6 @@ const inventory: Record<TechCategory, Entry[]> = {
       icon: si('sanity'),
       url: 'https://www.sanity.io',
     },
-    {
-      name: 'Cursor',
-      priority: 2,
-      icon: si('cursor'),
-      url: 'https://cursor.com',
-    },
     { name: 'SAP', priority: 3, icon: si('sap'), url: 'https://www.sap.com' },
     {
       name: 'Figma',
@@ -529,6 +523,35 @@ const inventory: Record<TechCategory, Entry[]> = {
       url: 'https://babeljs.io',
     },
     {
+      name: 'Excel / Power Query',
+      priority: 3,
+      icon: monogram('XL'),
+      url: 'https://learn.microsoft.com/power-query/',
+      brandColor: '#217346',
+    },
+    {
+      name: 'Power BI',
+      priority: 3,
+      icon: monogram('BI'),
+      url: 'https://www.microsoft.com/power-platform/products/power-bi',
+      brandColor: '#f2c811',
+    },
+    {
+      name: 'SharePoint',
+      priority: 3,
+      icon: monogram(),
+      url: 'https://www.microsoft.com/microsoft-365/sharepoint/collaboration',
+      brandColor: '#0078d4',
+    },
+  ],
+  ai: [
+    {
+      name: 'Cursor',
+      priority: 2,
+      icon: si('cursor'),
+      url: 'https://cursor.com',
+    },
+    {
       name: 'VS Code',
       priority: 3,
       // Devicon `vscode` uses fill-rule=evenodd (rejected by D13 geometry).
@@ -561,27 +584,6 @@ const inventory: Record<TechCategory, Entry[]> = {
       icon: devicon('lovable'),
       url: 'https://lovable.dev',
       brandColor: '#ff6b6b',
-    },
-    {
-      name: 'Excel / Power Query',
-      priority: 3,
-      icon: monogram('XL'),
-      url: 'https://learn.microsoft.com/power-query/',
-      brandColor: '#217346',
-    },
-    {
-      name: 'Power BI',
-      priority: 3,
-      icon: monogram('BI'),
-      url: 'https://www.microsoft.com/power-platform/products/power-bi',
-      brandColor: '#f2c811',
-    },
-    {
-      name: 'SharePoint',
-      priority: 3,
-      icon: monogram(),
-      url: 'https://www.microsoft.com/microsoft-365/sharepoint/collaboration',
-      brandColor: '#0078d4',
     },
   ],
 };

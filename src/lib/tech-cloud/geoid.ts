@@ -55,22 +55,26 @@ export interface ProjectedIcon {
 }
 
 /**
- * Spherical → screen projection for a square stage of `size` CSS pixels.
- * Matches the prototype: depth drives scale (0.25–1.6) and opacity (0.15–1).
+ * Spherical → screen projection for a rectangular stage (D40).
+ * X/Y fill 40% of width/height so the cloud occupies the stage; Z uses the
+ * shorter axis for depth. Depth drives scale (0.25–1.6) and opacity (0.15–1).
  */
 export function projectGeoidIcon(input: {
   phi: number;
   theta: number;
   radiusMultiplier: number;
   floatY: number;
-  size: number;
+  width: number;
+  height: number;
 }): ProjectedIcon {
-  const { phi, theta, radiusMultiplier, floatY, size } = input;
-  const r = size * 0.4 * radiusMultiplier;
-  const x = r * Math.sin(phi) * Math.cos(theta);
-  const y = r * Math.cos(phi) + floatY;
-  const z = r * Math.sin(phi) * Math.sin(theta);
-  const maxRadiusZ = size * 0.4 * 1.2;
+  const { phi, theta, radiusMultiplier, floatY, width, height } = input;
+  const rx = width * 0.4 * radiusMultiplier;
+  const ry = height * 0.4 * radiusMultiplier;
+  const rz = Math.min(width, height) * 0.4 * radiusMultiplier;
+  const x = rx * Math.sin(phi) * Math.cos(theta);
+  const y = ry * Math.cos(phi) + floatY;
+  const z = rz * Math.sin(phi) * Math.sin(theta);
+  const maxRadiusZ = Math.min(width, height) * 0.4 * 1.2;
   const zNormalized = (z + maxRadiusZ) / (2 * maxRadiusZ);
   return {
     x,

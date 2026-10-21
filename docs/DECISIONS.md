@@ -193,9 +193,9 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 
 ### D21 — Inline motion-init script
 
-- **Context.** A persisted "Pause animations" choice must apply before first paint, or the hero animates for a frame. The spec allows `dangerouslySetInnerHTML` only for JSON-LD.
-- **Decision.** One constant, dependency-free inline script (`src/lib/motion-init.ts`) in `<head>` sets `data-motion='reduced'` from `localStorage`. It contains no interpolated user or content data. `<html>` uses `suppressHydrationWarning` for that attribute.
-- **Consequence.** Second, documented exception to the `dangerouslySetInnerHTML` rule; covered by the public CSP's `script-src 'unsafe-inline'` (D4).
+- **Context.** A persisted "Pause animations" choice must apply before first paint, or the hero animates for a frame. The spec allows `dangerouslySetInnerHTML` only for JSON-LD. React 19.3 rejects `<script>` tags created while any React component (including `next/script`) is rendering on the client — they never execute, and Next 16.4 can 500 with "element type is invalid … got: undefined".
+- **Decision.** One constant, dependency-free IIFE (`src/lib/motion-init.ts`) injected into `<head>` with `useServerInsertedHTML` from a client leaf that returns `null` (`src/components/layout/motion-init.tsx`). Next splices it into the SSR stream before `</head>`, so it runs during HTML parse and is not in the client tree. It contains no interpolated user or content data. `<html>` uses `suppressHydrationWarning` for `data-motion`.
+- **Consequence.** Second, documented exception to the `dangerouslySetInnerHTML` rule; covered by the public CSP's `script-src 'unsafe-inline'` (D4). Neither a raw `<script>` nor `next/script` `beforeInteractive` can live in the locale layout's JSX under React 19.3.
 
 ### D22 — Nav indicator without Motion `layoutId`
 
@@ -302,10 +302,10 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
   - Marks are full-color `<img>` from jsDelivr Devicon / SVGL / Simple Icons. Dark marks (`invert: true`) get `filter: invert(1) brightness(2)`. Radial CSS mask fades the rim.
   - 85 names, shuffled once per load. Always-on rAF. No reduced motion.
 - **Decision.** Port the **feel and the set**, not the runtime.
-  - **Feel:** geoid radii, latitude speeds, float, radial mask, yaw-only drag + inertia, per-item hover slowdown, name-on-icon (blur the mark). Container is the `#stack` square, not the viewport — `min(720px, 100%)`, icon box 32px (28px under 640px) so 85 items still breathe. Soft orbit glow stays.
+  - **Feel:** geoid radii, latitude speeds, float, radial mask, yaw-only drag + inertia, per-item hover slowdown, name-on-icon (blur the mark). Icon box 32px (28px under 640px). Soft orbit glow stays. Stage width is the display (D38), not `min(720px, 100%)`.
   - **Set:** seed the 85 prototype names, then **re-add every Appendix C item that still resolves** in Simple Icons or Devicon (Redis, RabbitMQ, Pub/Sub, BigQuery, SAP, Zustand, TanStack Query, VBA via `visualbasic`). SVGL was checked for the rest: Excel and SharePoint exist but are radial-gradient meshes; VS Code is mask + evenodd; OpenAI/GPT is evenodd-only and Simple Icons has no `openai` slug; Power BI is in neither Devicon nor SVGL. Those five stay monograms. Lovable resolves via `devicon-plain`. Appendix C’s “do not seed React Native / Electron” is revoked — they are in the prototype. Admin can hide/add later. Practices stay List-view chips.
   - **Cannot copy:** CDN `<img>` (no third-party browser requests). Resolve on the server into sanitized inline SVG, **keeping brand fills** for the cloud (amends D13 for this surface only). Dark marks use the prototype invert list, not the §7 luminance→`text-1` swap. List view can stay single-tone `TechIcon` so the grouped `<ul>` does not turn into a sticker sheet.
-  - **Keep from §7:** Cloud | List control; List as no-JS / reduced-motion / `data-motion='reduced'` default; sphere `aria-hidden`; category chips under the cloud; official-site caption on tap; `touch-action: pan-y`; rAF only while in view and the tab is visible; pause-animations toggle kills float + auto-rotate (drag still works); lazy chunk + same-size placeholder; no React state per frame.
+  - **Keep from §7:** Cloud | List control; List as no-JS / reduced-motion / `data-motion='reduced'` default; sphere `aria-hidden`; category chips (beside Cloud|List, D39); official-site caption on tap; `touch-action: pan-y`; rAF only while in view and the tab is visible; pause-animations toggle kills float + auto-rotate (drag still works); lazy chunk + same-size placeholder; no React state per frame.
   - **Density:** ≥768px all 85; `<768px` priorities 1–2. Priorities assigned so phones land around 40 items (p1 core + p2 everyday), the long tail is p3.
 - **Inventory** (category → name, priority). Icon slugs to be audited in Phase 4 against simple-icons / devicon, same pipeline as D13, plus original-color geometry for the cloud.
 
@@ -319,10 +319,60 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 
   Cloud: AWS 1, Google Cloud 1, Docker 1, Git 1, GitHub 1, Vercel 1, Kubernetes 2, GitHub Actions 2, Terraform 2, Android 2, GitLab 3, ArgoCD 3, CircleCI 3, Firebase 3, Datadog 3, Linux 3.
 
-  Integration / DX / AI: Okta 2, Stripe 2, Sanity 2, Cursor 2, SAP 3, Figma 3, Postman 3, Jira 3, Mapbox 3, Cypress 3, Jest 3, ESLint 3, Babel 3, VS Code 3, Claude 3, GPT 3 (monogram), Gemini 3, Lovable 3, Excel 3, Power BI 3, SharePoint 3 (monograms).
+  Integration / DX: Okta 2, Stripe 2, Sanity 2, SAP 3, Figma 3, Postman 3, Jira 3, Mapbox 3, Cypress 3, Jest 3, ESLint 3, Babel 3, Excel 3, Power BI 3, SharePoint 3 (monograms).
+
+  AI agents & tooling (D39): Cursor 2, VS Code 3 (monogram), Claude 3, GPT 3 (monogram), Gemini 3, Lovable 3.
 
 - **Dark marks:** brand fill is lifted to `#e8eaf0` when relative luminance &lt; 0.25 (covers the prototype invert set without CSS `filter: invert`).
-- **Consequence.** Cloud looks like the prototype (color, depth, drag) and stays legal for this repo. Fixtures grow from 46 → 96; `icons:audit` must re-run. A 7th category is not added — AI/DX land in Integration so the chips stay the six §7 labels. Phone cull (`priority ≤ 2`) lands around 49 items. Five monograms remain (Excel, Power BI, SharePoint, VS Code, GPT).
+- **Consequence.** Cloud looks like the prototype (color, depth, drag) and stays legal for this repo. Fixtures grow from 46 → 96; `icons:audit` must re-run. Phone cull (`priority ≤ 2`) lands around 49 items. Five monograms remain (Excel, Power BI, SharePoint, VS Code, GPT). The sixth-category-only rule is amended by D39.
+
+### D38 — Tech cloud is full-bleed
+
+- **Context.** D37 sized the geoid to `min(720px, 100%)` inside `container-page` so 96 marks would breathe. After seeing it live, the owner asked for 100% of the display width.
+- **Decision.** The geoid (and its lazy placeholder) is a full-bleed `aspect-square w-full` stage: `#stack` is the viewport column, not the 1200px measure. The section header, Cloud|List control, List view, live caption and category chips stay in `container-page`. Projection still uses `min(width, height)` of the stage, so the circle diameter equals the display width.
+- **Consequence.** On a 1440px desktop the sphere is ~1440px tall. Horizontal overflow stays a non-issue because the stage is `w-full` of the already-full-width section, not `100vw`.
+
+### D39 — Stack chrome and a 7th tech category
+
+- **Context.** After seeing the Phase 4 geoid, the owner asked to drop the redundant “Switch to list view” control (Cloud|List already does it), drop the “Hover or tap a logo to see its name.” hint (the name overlay should be a surprise), drop the thin orbit ring, move the category chips next to Cloud|List, and add “AI agents & tooling”. D37 had parked AI/DX in Integration so chips stayed at six.
+- **Decision.** Category id `ai`, labels “AI agents & tooling” / “Agentes de IA e ferramentas”. Move Cursor, VS Code, Claude, GPT, Gemini and Lovable out of Integration. Chips sit in the Cloud|List row (cloud view only). The live caption still announces a tap; it is empty until then. Soft orbit glow stays; the `inset-[18%]` ring goes.
+- **Consequence.** Seven chips. Integration 15, AI 6; totals and priorities unchanged (96, 21/28/47). No unused i18n keys. List headings pick up the 7th group from `techCategories` order. The development Sanity dataset was still the 46-item Appendix C seed, so the AI chip stayed hidden (`count === 0`) until those six documents existed there (D40).
+
+### D40 — Rectangular geoid stage and chip toolbar
+
+- **Context.** D38 made the stage `aspect-square w-full`, so a 1440px display produced a 1440px-tall square. The owner asked for full viewport width and about 80% of the display height, chips flushed right via `justify-between`, a pointer cursor on the filters, and the missing AI chip.
+- **Decision.** Stage class `h-[80svh] w-full` (placeholders included). Projection uses independent X/Y radii (`width×0.4`, `height×0.4`) and Z from `min(width,height)` so the cloud fills the rectangle. Filter chips live in a `toolbar` with `aria-pressed`, an accessible name that includes the count, and `cursor-pointer`. Cloud|List stays a `group` on the left; the chip row is `ml-auto justify-end`.
+- **Consequence.** The geoid is an ellipse in landscape, not a circle. `rounded-full` on the stage would have become a capsule, so the glow uses `rounded-[50%]`. Development Sanity needed the six `ai` documents or the chip stays omitted.
+
+### D41 — Geoid stage min-height 600px
+
+- **Context.** D40 set the stage to `h-[80svh]`. On short displays (phones, short laptop windows) that is well under 600px and the ellipsoid looks cramped. 720px was tried first and felt too large.
+- **Decision.** Keep `h-[80svh] w-full` and add `min-h-[600px]` on the same `geoidStageClassName` (live geoid and placeholders).
+- **Consequence.** Below ~750px of viewport height the stage is taller than 80svh and the section scrolls. Width is unchanged (still full-bleed, D38).
+
+### D42 — No Cloud|List toggle
+
+- **Context.** Cloud|List duplicated what reduced-motion already decided, and D39 had already dropped the extra “Switch to list view” copy.
+- **Decision.** Remove the control and the unused `viewLabel` / `viewCloud` / `viewList` strings. After hydrate, the geoid shows unless `useReducedMotionPreference()` is true (`prefers-reduced-motion` or Pause animations). SSR / no-JS / geoid crash still render List. Category chips stay in cloud view only.
+- **Consequence.** Visitors cannot pick a view. Pause animations still switches to List because it shares the reduced-motion signal (D37).
+
+### D43 — Center category chips
+
+- **Context.** After Cloud|List went away (D42), right-aligned chips looked stranded on a full-width row.
+- **Decision.** The filter toolbar is `justify-center` inside `container-page`.
+- **Consequence.** Wrapped chip rows stay centered. D40’s `justify-between` / `ml-auto` no longer apply.
+
+### D44 — Category filter mutes unmatched icons
+
+- **Context.** Unmatched marks at 0.22 opacity still accepted hover/tap, so names popped on icons the filter had visually retired.
+- **Decision.** Unmatched depth opacity is multiplied by `0.08`. They get `pointer-events: none` (and no `data-interactive`), so CSS hover-name and slowdown only run on matches. Click/tap and an in-flight caption ignore unmatched ids.
+- **Consequence.** Filtering is exclusive: the rest of the geoid is scenery. Drag on the stage still works through the muted marks.
+
+### D45 — Filter dim eases in rAF
+
+- **Context.** Snapping unmatched icons to 8% opacity on chip click felt abrupt. A CSS `transition: opacity` on the item would also lag the per-frame depth fade as marks orbit.
+- **Decision.** Lerp a `dimMultiplier` toward 1 or `CATEGORY_DIM` (factor `0.12`, ~250ms). Depth opacity stays a direct rAF write. Pointer-events still switch immediately. A paused geoid snaps.
+- **Consequence.** Chip toggles cross-fade; orbit dimming stays sharp.
 
 ## 5. Contradictions found in the spec and how they are resolved
 
@@ -341,6 +391,14 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 13. Filter Motion layout (§8.4) vs Server Component cards → D34.
 14. Prerendered `/projects` vs `searchParams` making the segment dynamic → D35.
 15. §7 monochrome sphere + 46-item Appendix C vs the owner’s `techs-cloud` prototype → D37.
+16. D37 `min(720px, 100%)` stage vs the owner’s “100% of the display width” → D38.
+17. D37 “no 7th category” vs the owner’s “AI agents & tooling” chip → D39.
+18. D38 square stage vs “100% width and ~80% of the display height” → D40.
+19. D40 `80svh` alone vs a cramped cloud on short viewports → D41 (`min-height: 600px`).
+20. D37 “keep Cloud | List” vs the owner hiding that control → D42.
+21. D40/D42 right-aligned chips vs the owner centering them → D43.
+22. D37 unmatched still hoverable vs exclusive filter interaction → D44.
+23. CSS opacity transition vs per-frame depth fade → D45 (lerp only the filter dim).
 
 ## 6. Risks
 

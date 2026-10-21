@@ -9,6 +9,7 @@ import { getMessages, getTranslations } from 'next-intl/server';
 import { Footer } from '@/components/layout/footer';
 import { Header } from '@/components/layout/header';
 import { LanguageAnnouncer } from '@/components/layout/language-announcer';
+import { MotionInit } from '@/components/layout/motion-init';
 import { MotionProvider } from '@/components/layout/motion-provider';
 import { RouteFocus } from '@/components/layout/route-focus';
 import { ScrollProgress } from '@/components/layout/scroll-progress';
@@ -16,7 +17,6 @@ import { SkipLink } from '@/components/layout/skip-link';
 import { Toaster } from '@/components/ui/toaster';
 import { owner, THEME_COLOR } from '@/config/site';
 import { isAppLocale, localeTags, routing } from '@/i18n/routing';
-import { MOTION_INIT_SCRIPT } from '@/lib/motion-init';
 import { siteMetadata } from '@/lib/seo/metadata';
 import { fontVariables } from '@/styles/fonts';
 
@@ -71,10 +71,8 @@ export default async function LocaleLayout({
       className={fontVariables}
       suppressHydrationWarning
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: MOTION_INIT_SCRIPT }} />
-      </head>
       <body>
+        <MotionInit />
         <NextIntlClientProvider messages={clientMessages}>
           <MotionProvider>
             <SkipLink />

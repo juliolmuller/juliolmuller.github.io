@@ -7,6 +7,7 @@ export const techCategories = [
   'data',
   'cloud',
   'integration',
+  'ai',
 ] as const;
 
 export type TechCategory = (typeof techCategories)[number];

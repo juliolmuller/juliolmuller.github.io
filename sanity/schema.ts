@@ -278,6 +278,7 @@ const documents: SchemaType[] = [
           'data',
           'cloud',
           'integration',
+          'ai',
         ]),
       }),
       field('iconSource', 'string', {

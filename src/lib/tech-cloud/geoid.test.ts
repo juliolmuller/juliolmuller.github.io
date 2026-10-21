@@ -31,19 +31,42 @@ describe('projectGeoidIcon', () => {
       theta: Math.PI / 2,
       radiusMultiplier: 1,
       floatY: 0,
-      size: 560,
+      width: 560,
+      height: 560,
     });
     const back = projectGeoidIcon({
       phi: Math.PI / 2,
       theta: -Math.PI / 2,
       radiusMultiplier: 1,
       floatY: 0,
-      size: 560,
+      width: 560,
+      height: 560,
     });
     expect(front.interactive).toBe(true);
     expect(back.interactive).toBe(false);
     expect(front.scale).toBeGreaterThan(back.scale);
     expect(front.opacity).toBeGreaterThan(back.opacity);
+  });
+
+  it('stretches X with stage width on a rectangular stage', () => {
+    const square = projectGeoidIcon({
+      phi: Math.PI / 2,
+      theta: 0,
+      radiusMultiplier: 1,
+      floatY: 0,
+      width: 400,
+      height: 400,
+    });
+    const wide = projectGeoidIcon({
+      phi: Math.PI / 2,
+      theta: 0,
+      radiusMultiplier: 1,
+      floatY: 0,
+      width: 800,
+      height: 400,
+    });
+    expect(wide.x).toBeCloseTo(square.x * 2);
+    expect(wide.y).toBeCloseTo(square.y);
   });
 });
 

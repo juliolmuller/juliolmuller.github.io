@@ -5,7 +5,7 @@ import { createFixtureDataset, type FixtureDataset } from './fixtures/dataset';
 import { techId } from './fixtures/ids';
 import type { ContentLogger } from './log';
 import type { ContentRepository } from './repository';
-import { contentLocales } from './schema';
+import { contentLocales, techCategories } from './schema';
 
 export type RepositoryFactory = (
   dataset: FixtureDataset,
@@ -193,6 +193,22 @@ export function describeRepositoryContract(
           technologies.filter((tech) => tech.priority === priority).length,
       );
       expect(byPriority).toEqual([21, 28, 47]);
+      expect(
+        Object.fromEntries(
+          techCategories.map((category) => [
+            category,
+            technologies.filter((tech) => tech.category === category).length,
+          ]),
+        ),
+      ).toEqual({
+        language: 15,
+        frontend: 17,
+        backend: 17,
+        data: 10,
+        cloud: 16,
+        integration: 15,
+        ai: 6,
+      });
       const monograms = technologies
         .filter((tech) => 'monogram' in tech.icon)
         .map((tech) => tech.name)

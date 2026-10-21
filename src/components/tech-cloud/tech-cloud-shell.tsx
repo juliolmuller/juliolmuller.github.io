@@ -18,6 +18,7 @@ import { useReducedMotionPreference } from '@/lib/motion-preference';
 import { CloudErrorBoundary } from './cloud-error-boundary';
 import type { CloudTech } from './geoid-sphere';
 import { StackList } from './stack-list';
+import { geoidStageClassName } from './stage';
 
 const GeoidSphere = dynamic(
   () => import('./geoid-sphere').then((module) => module.GeoidSphere),
@@ -26,13 +27,11 @@ const GeoidSphere = dynamic(
     loading: () => (
       <div
         aria-hidden="true"
-        className="mx-auto aspect-square w-full max-w-[min(720px,100%)] rounded-full bg-surface-1/40"
+        className={`${geoidStageClassName} rounded-[50%] bg-surface-1/40`}
       />
     ),
   },
 );
-
-type View = 'cloud' | 'list';
 
 function toCloudTech(tech: Technology): CloudTech {
   return {
@@ -75,12 +74,12 @@ export function TechCloudShell({
     () => true,
     () => false,
   );
-  const [override, setOverride] = useState<View | null>(null);
+  const [failed, setFailed] = useState(false);
   const [category, setCategory] = useState<TechCategory | null>(null);
   const [selected, setSelected] = useState<CloudTech | null>(null);
   const [near, setNear] = useState(false);
   const hostRef = useRef<HTMLDivElement>(null);
-  const view: View = reduced || !isClient ? 'list' : (override ?? 'cloud');
+  const showCloud = isClient && !reduced && !failed;
 
   const cloudTechs = useMemo(
     () => technologies.map(toCloudTech),
@@ -92,13 +91,14 @@ export function TechCloudShell({
     techCategories.map((key) => [key, t(`categories.${key}`)]),
   ) as Record<TechCategory, string>;
 
+  const announced =
+    selected && (!category || selected.category === category) ? selected : null;
+
   useEffect(() => {
     if (!selected) return;
     const timer = window.setTimeout(() => setSelected(null), 2500);
     return () => window.clearTimeout(timer);
   }, [selected]);
-
-  const showCloud = view === 'cloud' && !reduced;
 
   useEffect(() => {
     if (!showCloud || near) return;
@@ -133,89 +133,85 @@ export function TechCloudShell({
     />
   );
 
+  const chips = showCloud ? (
+    <div
+      role="toolbar"
+      aria-label={t('filterLabel')}
+      className="flex flex-wrap items-center justify-center gap-2"
+    >
+      {techCategories.map((key) => {
+        const count = counts.get(key) ?? 0;
+        if (count === 0) return null;
+        const active = category === key;
+        const label = categoryLabels[key];
+        return (
+          <button
+            key={key}
+            type="button"
+            aria-pressed={active}
+            aria-label={t('filterChip', { category: label, count })}
+            onClick={() => setCategory(active ? null : key)}
+            className={cn(
+              'inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border px-3 text-small transition-colors',
+              active
+                ? 'border-accent-2/50 bg-accent-2/10 text-text-1'
+                : 'border-line text-text-2 hover-fine:border-line-strong hover-fine:text-text-1',
+            )}
+          >
+            {label}
+            <span aria-hidden="true" className="text-text-3 tabular-nums">
+              {count}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  ) : null;
+
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div
-          role="group"
-          aria-label={t('viewLabel')}
-          className="inline-flex rounded-full border border-line bg-surface-1/60 p-0.5"
-        >
-          {(
-            [
-              ['cloud', t('viewCloud')],
-              ['list', t('viewList')],
-            ] as const
-          ).map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={view === value}
-              disabled={value === 'cloud' && reduced}
-              onClick={() => setOverride(value)}
-              className={cn(
-                'min-h-11 rounded-full px-4 text-small transition-colors',
-                view === value
-                  ? 'bg-surface-2 text-text-1 shadow-[inset_0_0_0_1px_var(--color-line-strong)]'
-                  : 'text-text-2 hover-fine:text-text-1',
-                value === 'cloud' && reduced && 'cursor-not-allowed opacity-50',
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        {showCloud ? (
-          <button
-            type="button"
-            className="text-small text-text-2 underline-offset-4 hover-fine:text-text-1 hover-fine:underline"
-            onClick={() => setOverride('list')}
-          >
-            {t('switchToList')}
-          </button>
-        ) : null}
-      </div>
+      {chips ? <div className="container-page">{chips}</div> : null}
 
       {showCloud ? (
         <>
           <div ref={hostRef}>
             {near ? (
               <CloudErrorBoundary
-                fallback={list}
-                onError={() => setOverride('list')}
+                fallback={<div className="container-page">{list}</div>}
+                onError={() => setFailed(true)}
               >
                 <GeoidSphere
                   technologies={visibleCloud}
                   activeCategory={category}
                   paused={reduced}
-                  selectedId={selected?.id ?? null}
+                  selectedId={announced?.id ?? null}
                   onSelect={setSelected}
                 />
               </CloudErrorBoundary>
             ) : (
               <div
                 aria-hidden="true"
-                className="mx-auto aspect-square w-full max-w-[min(720px,100%)] rounded-full bg-surface-1/40"
+                className={`${geoidStageClassName} rounded-[50%] bg-surface-1/40`}
               />
             )}
           </div>
 
           <div
             aria-live="polite"
-            className="min-h-11 text-center text-small text-text-2"
+            className="container-page text-center text-small text-text-2"
           >
-            {selected ? (
+            {announced ? (
               <p>
-                <span className="text-text-1">{selected.name}</span>
+                <span className="text-text-1">{announced.name}</span>
                 <span className="text-text-3">
                   {' '}
-                  · {categoryLabels[selected.category]}
+                  · {categoryLabels[announced.category]}
                 </span>
-                {selected.url ? (
+                {announced.url ? (
                   <>
                     {' '}
                     <a
-                      href={selected.url}
+                      href={announced.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-accent-2 underline-offset-4 hover-fine:underline"
@@ -225,42 +221,11 @@ export function TechCloudShell({
                   </>
                 ) : null}
               </p>
-            ) : (
-              <p>{t('cloudHint')}</p>
-            )}
+            ) : null}
           </div>
-
-          <ul
-            aria-label={t('filterLabel')}
-            className="flex flex-wrap justify-center gap-2"
-          >
-            {techCategories.map((key) => {
-              const count = counts.get(key) ?? 0;
-              if (count === 0) return null;
-              const active = category === key;
-              return (
-                <li key={key}>
-                  <button
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setCategory(active ? null : key)}
-                    className={cn(
-                      'inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-small transition-colors',
-                      active
-                        ? 'border-accent-2/50 bg-accent-2/10 text-text-1'
-                        : 'border-line text-text-2 hover-fine:border-line-strong hover-fine:text-text-1',
-                    )}
-                  >
-                    {categoryLabels[key]}
-                    <span className="text-text-3 tabular-nums">{count}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
         </>
       ) : (
-        list
+        <div className="container-page">{list}</div>
       )}
     </div>
   );

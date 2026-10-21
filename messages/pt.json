@@ -82,15 +82,12 @@
       "backend": "Backend e APIs",
       "data": "Dados e mensageria",
       "cloud": "Cloud e DevOps",
-      "integration": "Integrações e automação"
+      "integration": "Integrações e automação",
+      "ai": "Agentes de IA e ferramentas"
     },
     "practicesTitle": "Práticas e conceitos",
-    "viewLabel": "Visualização da stack",
-    "viewCloud": "Nuvem",
-    "viewList": "Lista",
-    "switchToList": "Mudar para a lista",
     "filterLabel": "Filtrar por categoria",
-    "cloudHint": "Passe o mouse ou toque em um logo para ver o nome.",
+    "filterChip": "{category}, {count, plural, one {# tecnologia} other {# tecnologias}}",
     "officialSite": "Site oficial ↗"
   },
   "work": {

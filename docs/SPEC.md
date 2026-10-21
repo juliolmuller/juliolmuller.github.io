@@ -30,7 +30,8 @@ Where this list and the body below disagree, this list wins. Rationale for each 
 - The Studio schema is a single plain-data `sanity/schema.ts` (no `sanity` dependency), deployed to the datasets through Sanity's schema API [D29]. Fixture assets live in `public/fixtures` [D14].
 - Datasets: `production` (real) and `development` (fictional seed), both private, in project `njcnsmax` [D30].
 - OG/Twitter images are generated with `next/og` from a shared template [D31]. `check:seo` starts its own `next start` [D32]. Unknown `?kind=` / `?page=` on `/projects` are real 404s [D33]. The project filter is link navigation, not a client reflow [D34]. The projects index is request-rendered because it reads `searchParams` [D35]. axe excludes pending `Reveal` nodes; screenshot tests use reduced motion [D36].
-- The tech cloud follows the `techs-cloud` prototype: full-color geoid, ~96-item inventory (prototype + recoverable Appendix C marks), yaw-only drag. Icons stay on-origin; List view and reduced-motion still win [D37].
+- The tech cloud follows the `techs-cloud` prototype: full-color geoid, ~96-item inventory (prototype + recoverable Appendix C marks), yaw-only drag. Icons stay on-origin; List view and reduced-motion still win [D37]. The geoid is full-bleed across the display width (no 720px cap); header, List and chips stay in the page container [D38]. No “Switch to list view”, no hover/tap hint, no orbit ring; category chips sit beside Cloud|List; 7th category `ai` (“AI agents & tooling”) [D39]. The stage is `100% × 80svh` (not `aspect-square`); projection is an ellipsoid filling that rectangle; chips are right-aligned with `justify-between` [D40]. Stage min-height is 600px [D41]. No Cloud|List control; view is the geoid unless `prefers-reduced-motion` or Pause animations; SSR/no-JS stays List [D42]. Category chips are centered (`justify-center`) in cloud view [D43]. Unmatched icons dim to ~8% and lose pointer events; only matches hover/tap [D44]. Filter dim eases in rAF (~250ms); depth opacity stays un-transitioned [D45].
+- Motion-init is injected into `<head>` with `useServerInsertedHTML` (not a `<script>` in the layout JSX — React 19.3 rejects that) [D21].
 
 ## 0. Operating instructions (to the agent)
 
@@ -246,7 +247,7 @@ Native `scroll-behavior: smooth` guarded by reduced motion; `scroll-margin-top: 
 **Data.** Technologies are Sanity documents of type `technology` (§11.2), editable in the admin area. The data layer returns this shape, with icon data already resolved on the server so the browser never needs an icon package:
 
 ```ts
-type TechCategory = 'language' | 'frontend' | 'backend' | 'data' | 'cloud' | 'integration';
+type TechCategory = 'language' | 'frontend' | 'backend' | 'data' | 'cloud' | 'integration' | 'ai';
 interface Technology {
   id: string;                       // Sanity _id
   name: string;                     // proper noun, never localized
@@ -278,14 +279,14 @@ Practices and concepts without logos (Clean Architecture, SOLID, DDD, microservi
 - **Hover or keyboard focus on an icon:** rotation eases to a stop (≈300ms), the icon scales ×1.25, turns from neutral to its brand color and gets a soft glow. A tooltip above shows name + localized category. Rotation resumes 400ms after the pointer leaves.
 - **Drag:** Pointer Events with `setPointerCapture`; horizontal drag → yaw, vertical → pitch (mouse and pen only). Use `touch-action: pan-y` so vertical page scrolling keeps working on touch and only horizontal swipes rotate the sphere.
 - **Tap (touch):** movement < 6px and duration < 250ms selects the icon (no navigation), freezes rotation and shows its name in a persistent caption under the sphere (`aria-live='polite'`) plus a tooltip. Tapping elsewhere deselects; rotation resumes 2.5s after the last interaction. The caption offers a small ‘Official site ↗’ link (`rel='noopener noreferrer'`, new tab).
-- **Category chips** under the sphere (Languages, Frontend, Backend & APIs, Data & messaging, Cloud & DevOps, Integrations & automation, each with a count) highlight matching logos and dim the rest; selecting again clears. Navigation aid only, no ranking.
+- **Category chips** (Languages, Frontend, Backend & APIs, Data & messaging, Cloud & DevOps, Integrations & automation, AI agents & tooling, each with a count) highlight matching logos and fade unmatched ones (~8% opacity, ~250ms ease, no pointer events, no hover name). Selecting again clears. Cloud view only, centered. Navigation aid only, no ranking.
 
-**Visual treatment.** Logos are inline SVG in `currentColor`: neutral `text-2` at 70% opacity by default, so dark brand marks (GitHub, Next.js, Express) stay visible on near-black. On hover, focus or selection use `brandColor`, except when its relative luminance is below 0.25 (then use `text-1`). A faint radial glow and a thin orbit ring sit behind the sphere. No boxes or borders around icons.
+**Visual treatment.** Logos are inline SVG in `currentColor`: neutral `text-2` at 70% opacity by default, so dark brand marks (GitHub, Next.js, Express) stay visible on near-black. On hover, focus or selection use `brandColor`, except when its relative luminance is below 0.25 (then use `text-1`). A faint radial glow sits behind the sphere. No boxes or borders around icons.
 
 **Accessibility and fallbacks.**
 
-- A segmented control **Cloud | List** sits above the sphere. The List view is the accessible representation: a grouped `<ul>` per category with logo + name, then the practices chips. It is the default when `prefers-reduced-motion` is set, and the server-rendered baseline when JavaScript is unavailable.
-- The sphere wrapper is `aria-hidden='true'` for assistive technology; its items have `tabindex='-1'`. A visible ‘Switch to list view’ button immediately precedes it.
+- There is no Cloud | List control. The List view is the accessible representation: a grouped `<ul>` per category with logo + name, then the practices chips. It is the default when `prefers-reduced-motion` is set (or Pause animations), and the server-rendered baseline when JavaScript is unavailable.
+- The sphere wrapper is `aria-hidden='true'` for assistive technology; its items have `tabindex='-1'`. Reduced-motion is the only view switch.
 - Names and categories never rely on color alone.
 
 **Performance.** The sphere chunk loads lazily as the section nears the viewport (`next/dynamic` + IntersectionObserver, 300px root margin) behind a same-size placeholder (no CLS). All SVG paths are static data: no network requests.
@@ -894,6 +895,7 @@ These real technologies are the seed set for the `technology` and `practice` doc
 - **Data & messaging:** PostgreSQL (1), Redis (1), MongoDB (2), RabbitMQ (2), Google Cloud Pub/Sub (2), BigQuery (2).
 - **Cloud & DevOps:** AWS (1), Google Cloud (1), Docker (1), Git (1), GitHub (1), Kubernetes (2), Datadog (3).
 - **Integrations & automation:** Okta (2), Stripe (2), SAP (3), Excel / Power Query (3), Power BI (3), SharePoint (3). Some Microsoft marks may be missing from the icon sets: use the monogram fallback.
+- **AI agents & tooling:** Cursor (2), VS Code (3), Claude (3), GPT (3, monogram), Gemini (3), Lovable (3).
 - **Practices (text chips, List view only):** REST API design, Clean Architecture, SOLID, Domain-Driven Design, microservices, microfrontends, design systems, observability, CI/CD, spec-driven development, LLMs and AI, payment APIs and systems, solution architecture, tech leadership, open source contribution, automation.
 - **Mobile and desktop frameworks:** not specified yet. Do NOT seed React Native, Flutter, Electron or similar; the owner will add them through the admin (Technologies) once confirmed.
 

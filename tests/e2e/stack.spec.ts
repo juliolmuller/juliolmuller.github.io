@@ -27,38 +27,64 @@ test('stack list is in the first HTML', async ({ request }) => {
   expect(html).toContain('Zustand');
   expect(html).toContain('Redis');
   expect(html).toContain('REST API design');
-  expect(html).toContain('>List</button>');
+  expect(html).not.toContain('>Cloud</button>');
+  expect(html).not.toContain('>List</button>');
 });
 
 test('cloud hydrates and category chips dim the geoid', async ({ page }) => {
   await showStack(page);
-  const cloud = page.getByRole('button', { name: 'Cloud', exact: true });
-  await expect(cloud).toBeEnabled();
-  await expect(cloud).toHaveAttribute('aria-pressed', 'true');
   await expect(
-    page.getByRole('button', { name: 'Switch to list view' }),
-  ).toBeVisible();
+    page.getByRole('button', { name: 'Cloud', exact: true }),
+  ).toHaveCount(0);
   await expect(
-    page.getByRole('list', { name: 'Filter by category' }),
+    page.getByRole('button', { name: 'List', exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole('toolbar', { name: 'Filter by category' }),
   ).toBeVisible();
+  await expect(page.getByRole('button', { name: /AI agents/ })).toBeVisible();
   await page.getByRole('button', { name: /Languages/ }).click({ force: true });
   await expect(page.getByRole('button', { name: /Languages/ })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
-  await page.getByRole('button', { name: 'List', exact: true }).click({
-    force: true,
-  });
-  await expect(page.getByRole('heading', { name: 'Languages' })).toBeVisible();
+  await expect
+    .poll(async () =>
+      page.evaluate(() => {
+        const unmatched = document.querySelector(
+          '[data-cloud-item][data-category]:not([data-category="language"])',
+        ) as HTMLElement | null;
+        const matched = document.querySelector(
+          '[data-cloud-item][data-category="language"][data-interactive]',
+        ) as HTMLElement | null;
+        if (!unmatched) return 'missing-unmatched';
+        if (unmatched.style.pointerEvents !== 'none') {
+          return `pe:${unmatched.style.pointerEvents}`;
+        }
+        if (unmatched.hasAttribute('data-interactive')) {
+          return 'unmatched-interactive';
+        }
+        const unmatchedOpacity = Number(unmatched.style.opacity);
+        if (!(unmatchedOpacity > 0 && unmatchedOpacity <= 0.12)) {
+          return `op:${unmatched.style.opacity}`;
+        }
+        if (matched && Number(matched.style.opacity) <= unmatchedOpacity) {
+          return 'matched-not-brighter';
+        }
+        return 'ok';
+      }),
+    )
+    .toBe('ok');
 });
 
-test('reduced motion keeps the list and disables cloud', async ({ page }) => {
+test('reduced motion keeps the list', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await showStack(page);
   await expect(
     page.getByRole('button', { name: 'Cloud', exact: true }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Languages' })).toBeVisible();
+  await expect(page.locator('[data-cloud-item]')).toHaveCount(0);
 });
 
 test('stack has no axe violations', async ({ page, browserName }) => {
@@ -95,8 +121,12 @@ test('tap on a front icon announces its name', async ({ page }, info) => {
     return front?.id ?? null;
   });
   expect(id).toBeTruthy();
+  const name = await page
+    .locator(`[data-cloud-item="${id}"] span`)
+    .textContent();
+  expect(name).toBeTruthy();
   await page.locator(`[data-cloud-item="${id}"]`).tap({ force: true });
-  await expect(page.locator('#stack [aria-live="polite"]')).not.toHaveText(
-    'Hover or tap a logo to see its name.',
+  await expect(page.locator('#stack [aria-live="polite"]')).toContainText(
+    name ?? '',
   );
 });

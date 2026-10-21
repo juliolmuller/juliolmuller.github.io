@@ -12,6 +12,7 @@ import type { TechIcon } from '@/lib/content/types';
 import { fibonacciGeoid } from '@/lib/tech-cloud/geoid';
 
 import { CloudMark } from './cloud-mark';
+import { geoidStageClassName } from './stage';
 
 export interface CloudTech {
   id: string;
@@ -33,6 +34,11 @@ interface GeoidSphereProps {
   className?: string;
 }
 
+/** Depth opacity multiplier for icons outside the active category filter. */
+const CATEGORY_DIM = 0.08;
+/** Per-frame lerp toward `CATEGORY_DIM` / 1 (~250ms at 60fps). */
+const CATEGORY_DIM_LERP = 0.12;
+
 interface ItemRuntime {
   tech: CloudTech;
   el: HTMLElement;
@@ -45,6 +51,7 @@ interface ItemRuntime {
   floatSpeed: number;
   isHovered: boolean;
   speedMultiplier: number;
+  dimMultiplier: number;
   lastTx: string;
   lastTy: string;
   lastScale: string;
@@ -108,6 +115,7 @@ export function GeoidSphere({
         floatSpeed: seed.floatSpeed,
         isHovered: false,
         speedMultiplier: 1,
+        dimMultiplier: 1,
         lastTx: '',
         lastTy: '',
         lastScale: '',
@@ -135,13 +143,15 @@ export function GeoidSphere({
     let frame = 0;
     let inView = true;
     let visible = document.visibilityState === 'visible';
-    let size = Math.min(stage.clientWidth, stage.clientHeight);
+    let width = stage.clientWidth;
+    let height = stage.clientHeight;
     let reduced =
       document.documentElement.dataset.motion === 'reduced' ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const resize = new ResizeObserver(() => {
-      size = Math.min(stage.clientWidth, stage.clientHeight);
+      width = stage.clientWidth;
+      height = stage.clientHeight;
     });
     resize.observe(stage);
 
@@ -173,7 +183,7 @@ export function GeoidSphere({
     let frameIndex = 0;
     const tick = (time: number) => {
       frame = requestAnimationFrame(tick);
-      if (!inView || !visible || size <= 0) return;
+      if (!inView || !visible || width <= 0 || height <= 0) return;
 
       const drag = dragRef.current;
       if (!drag.active) drag.velocity *= 0.95;
@@ -181,8 +191,10 @@ export function GeoidSphere({
       const freeze = pausedRef.current || reduced;
       const category = categoryRef.current;
       const selected = selectedRef.current;
-      const radiusScale = size * 0.4;
-      const maxRadiusZ = radiusScale * 1.2;
+      const rxScale = width * 0.4;
+      const ryScale = height * 0.4;
+      const rzScale = Math.min(width, height) * 0.4;
+      const maxRadiusZ = rzScale * 1.2;
       const depthSpan = 2 * maxRadiusZ;
       frameIndex += 1;
       const skipBack = frameIndex % 4 !== 0;
@@ -199,27 +211,47 @@ export function GeoidSphere({
           item.theta += drag.velocity;
         }
 
-        const r = radiusScale * item.radiusMultiplier;
-        const x = r * item.sinPhi * Math.cos(item.theta);
-        const z = r * item.sinPhi * Math.sin(item.theta);
-        const interactive = z > 0;
-        if (!interactive) {
+        const mul = item.radiusMultiplier;
+        const x = rxScale * mul * item.sinPhi * Math.cos(item.theta);
+        const z = rzScale * mul * item.sinPhi * Math.sin(item.theta);
+        const matching = category === null || item.tech.category === category;
+        const inFront = z > 0;
+        const interactive = inFront && matching;
+        const dimTarget = matching ? 1 : CATEGORY_DIM;
+        if (freeze) {
+          item.dimMultiplier = dimTarget;
+        } else {
+          item.dimMultiplier +=
+            (dimTarget - item.dimMultiplier) * CATEGORY_DIM_LERP;
+        }
+        if (!matching) item.isHovered = false;
+        if (!inFront) {
           item.isHovered = false;
           if (item.lastPointerEvents !== 'none') {
             item.lastPointerEvents = 'none';
             item.el.style.pointerEvents = 'none';
+            item.el.removeAttribute('data-interactive');
           }
-          if (skipBack) continue;
+          if (skipBack) {
+            const zNormalized = (z + maxRadiusZ) / depthSpan;
+            const opacity = (
+              (0.15 + zNormalized * 0.85) *
+              item.dimMultiplier
+            ).toFixed(2);
+            if (item.lastOpacity !== opacity) {
+              item.lastOpacity = opacity;
+              item.el.style.opacity = opacity;
+            }
+            continue;
+          }
         }
 
         const floatY = freeze
           ? 0
           : Math.sin(time * item.floatSpeed + item.floatOffset) * 6;
-        const y = r * item.cosPhi + floatY;
+        const y = ryScale * mul * item.cosPhi + floatY;
         const zNormalized = (z + maxRadiusZ) / depthSpan;
-        const dimmed =
-          category !== null && item.tech.category !== category ? 0.22 : 1;
-        const selectedBoost = selected === item.tech.id ? 1.15 : 1;
+        const selectedBoost = matching && selected === item.tech.id ? 1.15 : 1;
         const tx = x.toFixed(1);
         const ty = y.toFixed(1);
         const scale = ((0.25 + zNormalized * 1.35) * selectedBoost).toFixed(3);
@@ -234,7 +266,10 @@ export function GeoidSphere({
           item.el.style.transform = `translate3d(-50%,-50%,0) translate3d(${tx}px,${ty}px,0) scale(${scale})`;
         }
 
-        const opacity = ((0.15 + zNormalized * 0.85) * dimmed).toFixed(2);
+        const opacity = (
+          (0.15 + zNormalized * 0.85) *
+          item.dimMultiplier
+        ).toFixed(2);
         if (item.lastOpacity !== opacity) {
           item.lastOpacity = opacity;
           item.el.style.opacity = opacity;
@@ -250,6 +285,7 @@ export function GeoidSphere({
         if (item.lastPointerEvents !== pointerEvents) {
           item.lastPointerEvents = pointerEvents;
           item.el.style.pointerEvents = pointerEvents;
+          item.el.toggleAttribute('data-interactive', interactive);
         }
       }
     };
@@ -342,6 +378,8 @@ export function GeoidSphere({
         event.preventDefault();
         const tech = itemsRef.current.find((item) => item.tech.id === id)?.tech;
         if (!tech) return;
+        const category = categoryRef.current;
+        if (category && tech.category !== category) return;
         onSelectRef.current(selectedRef.current === tech.id ? null : tech);
       }
     };
@@ -363,7 +401,8 @@ export function GeoidSphere({
       role="presentation"
       aria-hidden="true"
       className={cn(
-        'relative mx-auto aspect-square w-full max-w-[min(720px,100%)] cursor-grab touch-pan-y active:cursor-grabbing',
+        'relative cursor-grab touch-pan-y active:cursor-grabbing',
+        geoidStageClassName,
         '[mask-image:radial-gradient(ellipse_at_center,black_52%,transparent_100%)]',
         className,
       )}
@@ -382,16 +421,13 @@ export function GeoidSphere({
         }
         const tech = technologies.find((item) => item.id === id);
         if (!tech) return;
+        if (activeCategory && tech.category !== activeCategory) return;
         onSelect(selectedId === tech.id ? null : tech);
       }}
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-[12%] rounded-full bg-[radial-gradient(circle,rgb(124_140_255/0.12),transparent_70%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-[18%] rounded-full border border-line/40"
+        className="pointer-events-none absolute inset-[12%] rounded-[50%] bg-[radial-gradient(ellipse,rgb(124_140_255/0.12),transparent_70%)]"
       />
       {technologies.map((tech) => (
         <div
@@ -403,9 +439,9 @@ export function GeoidSphere({
           <CloudMark
             icon={tech.icon}
             brandColor={tech.brandColor}
-            className="transition-[opacity,transform] duration-300 group-hover:scale-125 group-hover:opacity-30 group-hover:blur-[1px]"
+            className="transition-[opacity,transform] duration-300 group-data-[interactive]:group-hover:scale-125 group-data-[interactive]:group-hover:opacity-30 group-data-[interactive]:group-hover:blur-[1px]"
           />
-          <span className="pointer-events-none absolute top-1/2 left-1/2 z-2 -translate-x-1/2 -translate-y-1/2 text-[0.85rem] font-bold whitespace-nowrap text-text-1 opacity-0 transition-opacity duration-300 text-shadow-[0_2px_8px_rgb(0_0_0),0_0_4px_rgb(0_0_0/0.8)] group-hover:opacity-100">
+          <span className="pointer-events-none absolute top-1/2 left-1/2 z-2 -translate-x-1/2 -translate-y-1/2 text-[0.85rem] font-bold whitespace-nowrap text-text-1 opacity-0 transition-opacity duration-300 text-shadow-[0_2px_8px_rgb(0_0_0),0_0_4px_rgb(0_0_0/0.8)] group-data-[interactive]:group-hover:opacity-100">
             {tech.name}
           </span>
         </div>

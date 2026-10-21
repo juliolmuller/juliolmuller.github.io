@@ -27,7 +27,12 @@ const monogram = (text?: string): Icon => ({
   ...(text ? { monogram: text } : {}),
 });
 
-/** Appendix C, audited in D13. Real technologies, not claims about anyone. */
+/**
+ * Prototype `techs-cloud` inventory (D37) plus Appendix C items that still
+ * resolve in Simple Icons / Devicon. VBA uses Devicon `visualbasic`. Excel,
+ * Power BI, SharePoint, VS Code and GPT stay monograms (SVGL marks are
+ * gradients, masks or evenodd — the sanitizer cannot keep them).
+ */
 const inventory: Record<TechCategory, Entry[]> = {
   language: [
     {
@@ -43,22 +48,23 @@ const inventory: Record<TechCategory, Entry[]> = {
       url: 'https://www.typescriptlang.org',
     },
     {
-      name: 'SQL',
-      priority: 1,
-      icon: monogram(),
-      url: 'https://en.wikipedia.org/wiki/SQL',
-    },
-    {
-      name: 'HTML',
+      name: 'HTML5',
       priority: 1,
       icon: si('html5'),
       url: 'https://html.spec.whatwg.org',
     },
     {
-      name: 'CSS',
+      name: 'CSS3',
       priority: 1,
       icon: si('css'),
       url: 'https://www.w3.org/Style/CSS/',
+    },
+    {
+      name: 'SQL',
+      priority: 1,
+      icon: devicon('sqldeveloper'),
+      url: 'https://en.wikipedia.org/wiki/SQL',
+      brandColor: '#e64627',
     },
     { name: 'Go', priority: 2, icon: si('go'), url: 'https://go.dev' },
     {
@@ -68,13 +74,13 @@ const inventory: Record<TechCategory, Entry[]> = {
       url: 'https://dev.java',
       brandColor: '#f89820',
     },
-    { name: 'PHP', priority: 2, icon: si('php'), url: 'https://www.php.net' },
     {
       name: 'Python',
       priority: 2,
       icon: si('python'),
       url: 'https://www.python.org',
     },
+    { name: 'PHP', priority: 2, icon: si('php'), url: 'https://www.php.net' },
     { name: 'Lua', priority: 2, icon: si('lua'), url: 'https://www.lua.org' },
     {
       name: 'Ruby',
@@ -83,10 +89,29 @@ const inventory: Record<TechCategory, Entry[]> = {
       url: 'https://www.ruby-lang.org',
     },
     {
+      name: 'C',
+      priority: 3,
+      icon: si('c'),
+      url: 'https://en.wikipedia.org/wiki/C_(programming_language)',
+    },
+    {
+      name: 'Kotlin',
+      priority: 3,
+      icon: si('kotlin'),
+      url: 'https://kotlinlang.org',
+    },
+    {
+      name: 'Bash',
+      priority: 3,
+      icon: si('gnubash'),
+      url: 'https://www.gnu.org/software/bash/',
+    },
+    {
       name: 'VBA',
       priority: 3,
-      icon: monogram(),
+      icon: devicon('visualbasic'),
       url: 'https://learn.microsoft.com/office/vba/api/overview/',
+      brandColor: '#004e8c',
     },
   ],
   frontend: [
@@ -103,7 +128,74 @@ const inventory: Record<TechCategory, Entry[]> = {
       icon: si('nextdotjs'),
       url: 'https://nextjs.org',
     },
+    {
+      name: 'Tailwind CSS',
+      priority: 1,
+      icon: si('tailwindcss'),
+      url: 'https://tailwindcss.com',
+    },
     { name: 'Nuxt', priority: 2, icon: si('nuxt'), url: 'https://nuxt.com' },
+    {
+      name: 'React Native',
+      priority: 2,
+      icon: si('react'),
+      url: 'https://reactnative.dev',
+    },
+    {
+      name: 'Expo',
+      priority: 2,
+      icon: si('expo'),
+      url: 'https://expo.dev',
+    },
+    {
+      name: 'Electron',
+      priority: 2,
+      icon: si('electron'),
+      url: 'https://www.electronjs.org',
+    },
+    {
+      name: 'Vite',
+      priority: 2,
+      icon: si('vite'),
+      url: 'https://vite.dev',
+    },
+    {
+      name: 'AngularJS',
+      priority: 3,
+      icon: devicon('angularjs'),
+      url: 'https://angularjs.org',
+      brandColor: '#e23237',
+    },
+    {
+      name: 'Sass',
+      priority: 3,
+      icon: si('sass'),
+      url: 'https://sass-lang.com',
+    },
+    {
+      name: 'Bootstrap',
+      priority: 3,
+      icon: si('bootstrap'),
+      url: 'https://getbootstrap.com',
+    },
+    {
+      name: 'Material UI',
+      priority: 3,
+      icon: si('mui'),
+      url: 'https://mui.com',
+    },
+    {
+      name: 'Redux',
+      priority: 3,
+      icon: si('redux'),
+      url: 'https://redux.js.org',
+    },
+    {
+      name: 'jQuery',
+      priority: 3,
+      icon: si('jquery'),
+      url: 'https://jquery.com',
+    },
     {
       name: 'Zustand',
       priority: 3,
@@ -116,13 +208,6 @@ const inventory: Record<TechCategory, Entry[]> = {
       priority: 3,
       icon: si('reactquery'),
       url: 'https://tanstack.com/query',
-    },
-    {
-      name: 'AngularJS',
-      priority: 3,
-      icon: devicon('angularjs'),
-      url: 'https://angularjs.org',
-      brandColor: '#e23237',
     },
   ],
   backend: [
@@ -144,17 +229,18 @@ const inventory: Record<TechCategory, Entry[]> = {
       icon: si('graphql'),
       url: 'https://graphql.org',
     },
-    {
-      name: 'Fastify',
-      priority: 2,
-      icon: si('fastify'),
-      url: 'https://fastify.dev',
-    },
+    { name: 'Bun', priority: 1, icon: si('bun'), url: 'https://bun.com' },
     {
       name: 'NestJS',
       priority: 2,
       icon: si('nestjs'),
       url: 'https://nestjs.com',
+    },
+    {
+      name: 'Fastify',
+      priority: 2,
+      icon: si('fastify'),
+      url: 'https://fastify.dev',
     },
     {
       name: 'Prisma',
@@ -170,11 +256,55 @@ const inventory: Record<TechCategory, Entry[]> = {
       brandColor: '#2da6b0',
     },
     {
-      name: 'Swagger / OpenAPI',
+      name: 'Swagger',
       priority: 3,
       icon: si('swagger'),
       url: 'https://www.openapis.org',
     },
+    {
+      name: 'FeathersJS',
+      priority: 3,
+      icon: devicon('feathersjs'),
+      url: 'https://feathersjs.com',
+      brandColor: '#333333',
+    },
+    {
+      name: 'Laravel',
+      priority: 3,
+      icon: si('laravel'),
+      url: 'https://laravel.com',
+    },
+    {
+      name: 'Spring',
+      priority: 3,
+      icon: si('spring'),
+      url: 'https://spring.io',
+    },
+    {
+      name: 'Apache',
+      priority: 3,
+      icon: si('apache'),
+      url: 'https://httpd.apache.org',
+    },
+    {
+      name: 'Socket.io',
+      priority: 3,
+      icon: si('socketdotio'),
+      url: 'https://socket.io',
+    },
+    {
+      name: 'Axios',
+      priority: 3,
+      icon: si('axios'),
+      url: 'https://axios-http.com',
+    },
+    {
+      name: 'Composer',
+      priority: 3,
+      icon: si('composer'),
+      url: 'https://getcomposer.org',
+    },
+    { name: 'npm', priority: 3, icon: si('npm'), url: 'https://www.npmjs.com' },
   ],
   data: [
     {
@@ -191,10 +321,22 @@ const inventory: Record<TechCategory, Entry[]> = {
       url: 'https://www.mongodb.com',
     },
     {
+      name: 'MySQL',
+      priority: 2,
+      icon: si('mysql'),
+      url: 'https://www.mysql.com',
+    },
+    {
       name: 'RabbitMQ',
       priority: 2,
       icon: si('rabbitmq'),
       url: 'https://www.rabbitmq.com',
+    },
+    {
+      name: 'Kafka',
+      priority: 2,
+      icon: si('apachekafka'),
+      url: 'https://kafka.apache.org',
     },
     {
       name: 'Google Cloud Pub/Sub',
@@ -207,6 +349,19 @@ const inventory: Record<TechCategory, Entry[]> = {
       priority: 2,
       icon: si('googlebigquery'),
       url: 'https://cloud.google.com/bigquery',
+    },
+    {
+      name: 'DynamoDB',
+      priority: 3,
+      icon: devicon('dynamodb'),
+      url: 'https://aws.amazon.com/dynamodb/',
+      brandColor: '#4053d6',
+    },
+    {
+      name: 'Elasticsearch',
+      priority: 3,
+      icon: si('elasticsearch'),
+      url: 'https://www.elastic.co/elasticsearch',
     },
   ],
   cloud: [
@@ -237,16 +392,71 @@ const inventory: Record<TechCategory, Entry[]> = {
       url: 'https://github.com',
     },
     {
+      name: 'Vercel',
+      priority: 1,
+      icon: si('vercel'),
+      url: 'https://vercel.com',
+    },
+    {
       name: 'Kubernetes',
       priority: 2,
       icon: si('kubernetes'),
       url: 'https://kubernetes.io',
     },
     {
+      name: 'GitHub Actions',
+      priority: 2,
+      icon: si('githubactions'),
+      url: 'https://github.com/features/actions',
+    },
+    {
+      name: 'Terraform',
+      priority: 2,
+      icon: si('terraform'),
+      url: 'https://www.terraform.io',
+    },
+    {
+      name: 'Android',
+      priority: 2,
+      icon: si('android'),
+      url: 'https://developer.android.com',
+    },
+    {
+      name: 'GitLab',
+      priority: 3,
+      icon: si('gitlab'),
+      url: 'https://gitlab.com',
+    },
+    {
+      name: 'ArgoCD',
+      priority: 3,
+      icon: devicon('argocd'),
+      url: 'https://argo-cd.readthedocs.io',
+      brandColor: '#ef7b4d',
+    },
+    {
+      name: 'CircleCI',
+      priority: 3,
+      icon: si('circleci'),
+      url: 'https://circleci.com',
+    },
+    {
+      name: 'Firebase',
+      priority: 3,
+      icon: si('firebase'),
+      url: 'https://firebase.google.com',
+    },
+    {
       name: 'Datadog',
       priority: 3,
       icon: si('datadog'),
       url: 'https://www.datadoghq.com',
+    },
+    {
+      name: 'Linux',
+      priority: 3,
+      icon: si('linux'),
+      url: 'https://www.kernel.org',
     },
   ],
   integration: [
@@ -262,7 +472,96 @@ const inventory: Record<TechCategory, Entry[]> = {
       icon: si('stripe'),
       url: 'https://stripe.com',
     },
+    {
+      name: 'Sanity',
+      priority: 2,
+      icon: si('sanity'),
+      url: 'https://www.sanity.io',
+    },
+    {
+      name: 'Cursor',
+      priority: 2,
+      icon: si('cursor'),
+      url: 'https://cursor.com',
+    },
     { name: 'SAP', priority: 3, icon: si('sap'), url: 'https://www.sap.com' },
+    {
+      name: 'Figma',
+      priority: 3,
+      icon: si('figma'),
+      url: 'https://www.figma.com',
+    },
+    {
+      name: 'Postman',
+      priority: 3,
+      icon: si('postman'),
+      url: 'https://www.postman.com',
+    },
+    {
+      name: 'Jira',
+      priority: 3,
+      icon: si('jira'),
+      url: 'https://www.atlassian.com/software/jira',
+    },
+    {
+      name: 'Mapbox',
+      priority: 3,
+      icon: si('mapbox'),
+      url: 'https://www.mapbox.com',
+    },
+    {
+      name: 'Cypress',
+      priority: 3,
+      icon: si('cypress'),
+      url: 'https://www.cypress.io',
+    },
+    { name: 'Jest', priority: 3, icon: si('jest'), url: 'https://jestjs.io' },
+    {
+      name: 'ESLint',
+      priority: 3,
+      icon: si('eslint'),
+      url: 'https://eslint.org',
+    },
+    {
+      name: 'Babel',
+      priority: 3,
+      icon: si('babel'),
+      url: 'https://babeljs.io',
+    },
+    {
+      name: 'VS Code',
+      priority: 3,
+      // Devicon `vscode` uses fill-rule=evenodd (rejected by D13 geometry).
+      icon: monogram('VS'),
+      url: 'https://code.visualstudio.com',
+      brandColor: '#007acc',
+    },
+    {
+      name: 'Claude',
+      priority: 3,
+      icon: si('claude'),
+      url: 'https://claude.ai',
+    },
+    {
+      name: 'GPT',
+      priority: 3,
+      icon: monogram('GPT'),
+      url: 'https://chatgpt.com',
+      brandColor: '#10a37f',
+    },
+    {
+      name: 'Gemini',
+      priority: 3,
+      icon: si('googlegemini'),
+      url: 'https://gemini.google.com',
+    },
+    {
+      name: 'Lovable',
+      priority: 3,
+      icon: devicon('lovable'),
+      url: 'https://lovable.dev',
+      brandColor: '#ff6b6b',
+    },
     {
       name: 'Excel / Power Query',
       priority: 3,

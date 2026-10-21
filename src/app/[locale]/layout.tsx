@@ -21,7 +21,13 @@ import { siteMetadata } from '@/lib/seo/metadata';
 import { fontVariables } from '@/styles/fonts';
 
 /** Namespaces needed by client components; the rest stays on the server. */
-const CLIENT_NAMESPACES = ['a11y', 'header', 'errors', 'project'] as const;
+const CLIENT_NAMESPACES = [
+  'a11y',
+  'header',
+  'errors',
+  'project',
+  'stack',
+] as const;
 
 export const revalidate = 86400;
 

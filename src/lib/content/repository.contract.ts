@@ -184,24 +184,25 @@ export function describeRepositoryContract(
       ]);
     });
 
-    it('resolves all 46 technologies with icons', async () => {
+    it('resolves all seeded technologies with icons (D37)', async () => {
       const { repository } = setup();
       const technologies = await repository.getTechnologies('en');
-      expect(technologies).toHaveLength(46);
+      expect(technologies).toHaveLength(96);
       const byPriority = [1, 2, 3].map(
         (priority) =>
           technologies.filter((tech) => tech.priority === priority).length,
       );
-      expect(byPriority).toEqual([18, 17, 11]);
+      expect(byPriority).toEqual([21, 28, 47]);
       const monograms = technologies
         .filter((tech) => 'monogram' in tech.icon)
-        .map((tech) => tech.name);
+        .map((tech) => tech.name)
+        .sort();
       expect(monograms).toEqual([
-        'SQL',
-        'VBA',
         'Excel / Power Query',
+        'GPT',
         'Power BI',
         'SharePoint',
+        'VS Code',
       ]);
       for (const tech of technologies) {
         if ('paths' in tech.icon) {

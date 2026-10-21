@@ -70,6 +70,16 @@ describe('resolveTechIcon', () => {
     expect(resolved.icon).toMatchObject({ viewBox: '0 0 128 128' });
   });
 
+  it('resolves VBA through Devicon visualbasic (D37)', async () => {
+    const resolved = await resolveTechIcon({
+      name: 'VBA',
+      iconSource: 'devicon',
+      iconSlug: 'visualbasic',
+    });
+    expect(resolved.source).toBe('devicon-plain');
+    expect(resolved.icon).toMatchObject({ viewBox: '0 0 128 128' });
+  });
+
   it('falls back to a monogram for unknown slugs', async () => {
     expect(
       await resolveTechIcon({

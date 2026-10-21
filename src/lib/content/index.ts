@@ -42,15 +42,14 @@ export function indexOrder<T extends { featured: boolean }>(
 
 export type { ContentRepository } from './repository';
 export type * from './types';
+export { techCategories, type TechCategory } from './taxonomy';
 export {
   contentLocales,
   projectKinds,
   projectStatuses,
-  techCategories,
   type ContentLocale,
   type ProjectKind,
   type ProjectStatus,
-  type TechCategory,
 } from './schema';
 export {
   CONTENT_REVALIDATE_SECONDS,

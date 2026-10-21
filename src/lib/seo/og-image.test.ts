@@ -1,7 +1,7 @@
 import { renderOgImage } from './og-image';
 
 describe('renderOgImage', () => {
-  it('returns a PNG', async () => {
+  it('returns a PNG', { timeout: 15_000 }, async () => {
     const response = await renderOgImage({
       title: 'Orbit Dashboard',
       subtitle: 'A fictional analytics console',

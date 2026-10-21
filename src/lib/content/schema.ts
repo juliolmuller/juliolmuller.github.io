@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+import { techCategories } from './taxonomy';
+
+export { techCategories, type TechCategory } from './taxonomy';
+
 /**
  * The content contract. Every adapter hands documents in this shape (localized
  * fields as `{ en, pt }`, image and file assets already resolved) to the shared
@@ -244,16 +248,6 @@ export const recommendedProfileSchema = z.object({
   order: orderSchema,
   visible: visibleSchema,
 });
-
-export const techCategories = [
-  'language',
-  'frontend',
-  'backend',
-  'data',
-  'cloud',
-  'integration',
-] as const;
-export type TechCategory = (typeof techCategories)[number];
 
 export const iconSources = [
   'simple-icons',

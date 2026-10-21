@@ -19,9 +19,32 @@ export default defineConfig({
     navigationTimeout: 30_000,
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
-    { name: 'mobile', use: { ...devices['Pixel 7'] } },
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+      testIgnore: 'stack.perf.spec.ts',
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+      testIgnore: 'stack.perf.spec.ts',
+    },
+    {
+      name: 'mobile',
+      use: { ...devices['Pixel 7'] },
+      testIgnore: 'stack.perf.spec.ts',
+    },
+    {
+      name: 'perf',
+      dependencies: ['chromium', 'webkit', 'mobile'],
+      use: {
+        ...devices['Desktop Chrome'],
+        trace: 'off',
+        video: 'off',
+        screenshot: 'off',
+      },
+      testMatch: 'stack.perf.spec.ts',
+    },
   ],
   webServer: {
     command: `bun run start -p ${PORT}`,

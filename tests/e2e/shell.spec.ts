@@ -138,7 +138,9 @@ test('motion toggle persists the paused state', async ({ page }) => {
   const toggle = page
     .getByRole('contentinfo')
     .getByRole('button', { name: 'Pause animations' });
-  await toggle.scrollIntoViewIfNeeded();
+  await toggle.evaluate((el) => {
+    el.scrollIntoView({ block: 'center' });
+  });
   await toggle.click({ force: true });
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
   await page.reload({ waitUntil: 'domcontentloaded' });

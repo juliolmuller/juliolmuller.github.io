@@ -30,6 +30,7 @@ Where this list and the body below disagree, this list wins. Rationale for each 
 - The Studio schema is a single plain-data `sanity/schema.ts` (no `sanity` dependency), deployed to the datasets through Sanity's schema API [D29]. Fixture assets live in `public/fixtures` [D14].
 - Datasets: `production` (real) and `development` (fictional seed), both private, in project `njcnsmax` [D30].
 - OG/Twitter images are generated with `next/og` from a shared template [D31]. `check:seo` starts its own `next start` [D32]. Unknown `?kind=` / `?page=` on `/projects` are real 404s [D33]. The project filter is link navigation, not a client reflow [D34]. The projects index is request-rendered because it reads `searchParams` [D35]. axe excludes pending `Reveal` nodes; screenshot tests use reduced motion [D36].
+- The tech cloud follows the `techs-cloud` prototype: full-color geoid, ~96-item inventory (prototype + recoverable Appendix C marks), yaw-only drag. Icons stay on-origin; List view and reduced-motion still win [D37].
 
 ## 0. Operating instructions (to the agent)
 

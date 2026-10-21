@@ -291,6 +291,39 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 - **Decision.** Leave pending reveals at `opacity: 0` only. axe calls `.exclude('[data-reveal=pending]')`. Screenshot tests emulate `prefers-reduced-motion` so every section stays visible. Playwright uses 2 workers, a 60 s test timeout, and `force` clicks plus `domcontentloaded` on the WebKit language/motion tests — looping hero motion never settles WebKit's actionability check.
 - **Consequence.** Contrast is audited on painted content. WebKit still runs the functional assertions; axe stays Chromium-only (D23).
 
+### D37 — Tech cloud follows the `techs-cloud` prototype
+
+- **Context.** Phase 4 was about to implement §7 as written (monochrome `currentColor` Fibonacci sphere, 46 Appendix C items, pitch+yaw, global pause on hover). The owner pointed at `~/techs-cloud/index.html` ([juliolmuller/techs-cloud](https://github.com/juliolmuller/techs-cloud)) as the look and the inventory. That page is vanilla DOM + rAF, no WebGL.
+- **What the prototype actually does.**
+  - Fibonacci / golden-ratio points, then a **geoid**: each item gets `radiusMultiplier ∈ [0.8, 1.2]`, a latitude-based spin (`faster toward the poles`), and a 6px sine float.
+  - Projection is 2D (`translate` + `scale` + `opacity` + `z-index`). Back hemisphere (`z ≤ 0`) has `pointer-events: none`.
+  - Auto-rotate never stops. Hover slows **that** icon to 0.05×, blurs it, and crossfades its name on top of the mark. No tooltip chrome, no category chips, no list view.
+  - Drag is **yaw only** (mouse X / touch X) with inverted delta and 0.95 inertia. No pitch. Touch is `passive` and does not reserve vertical page scroll.
+  - Marks are full-color `<img>` from jsDelivr Devicon / SVGL / Simple Icons. Dark marks (`invert: true`) get `filter: invert(1) brightness(2)`. Radial CSS mask fades the rim.
+  - 85 names, shuffled once per load. Always-on rAF. No reduced motion.
+- **Decision.** Port the **feel and the set**, not the runtime.
+  - **Feel:** geoid radii, latitude speeds, float, radial mask, yaw-only drag + inertia, per-item hover slowdown, name-on-icon (blur the mark). Container is the `#stack` square, not the viewport — `min(720px, 100%)`, icon box 32px (28px under 640px) so 85 items still breathe. Soft orbit glow stays.
+  - **Set:** seed the 85 prototype names, then **re-add every Appendix C item that still resolves** in Simple Icons or Devicon (Redis, RabbitMQ, Pub/Sub, BigQuery, SAP, Zustand, TanStack Query, VBA via `visualbasic`). SVGL was checked for the rest: Excel and SharePoint exist but are radial-gradient meshes; VS Code is mask + evenodd; OpenAI/GPT is evenodd-only and Simple Icons has no `openai` slug; Power BI is in neither Devicon nor SVGL. Those five stay monograms. Lovable resolves via `devicon-plain`. Appendix C’s “do not seed React Native / Electron” is revoked — they are in the prototype. Admin can hide/add later. Practices stay List-view chips.
+  - **Cannot copy:** CDN `<img>` (no third-party browser requests). Resolve on the server into sanitized inline SVG, **keeping brand fills** for the cloud (amends D13 for this surface only). Dark marks use the prototype invert list, not the §7 luminance→`text-1` swap. List view can stay single-tone `TechIcon` so the grouped `<ul>` does not turn into a sticker sheet.
+  - **Keep from §7:** Cloud | List control; List as no-JS / reduced-motion / `data-motion='reduced'` default; sphere `aria-hidden`; category chips under the cloud; official-site caption on tap; `touch-action: pan-y`; rAF only while in view and the tab is visible; pause-animations toggle kills float + auto-rotate (drag still works); lazy chunk + same-size placeholder; no React state per frame.
+  - **Density:** ≥768px all 85; `<768px` priorities 1–2. Priorities assigned so phones land around 40 items (p1 core + p2 everyday), the long tail is p3.
+- **Inventory** (category → name, priority). Icon slugs to be audited in Phase 4 against simple-icons / devicon, same pipeline as D13, plus original-color geometry for the cloud.
+
+  Languages: JavaScript 1, TypeScript 1, HTML5 1, CSS3 1, SQL 1, Go 2, Java 2, Python 2, PHP 2, Lua 2, Ruby 3, C 3, Kotlin 3, Bash 3, VBA 3 (Devicon `visualbasic`).
+
+  Frontend: React 1, Vue.js 1, Next.js 1, Tailwind CSS 1, Nuxt 2, React Native 2, Expo 2, Electron 2, Vite 2, AngularJS 3, Sass 3, Bootstrap 3, Material UI 3, Redux 3, jQuery 3, Zustand 3, TanStack Query 3.
+
+  Backend: Node.js 1, Express 1, GraphQL 1, Bun 1, NestJS 2, Fastify 2, Prisma 2, gRPC 2, Swagger 3, FeathersJS 3, Laravel 3, Spring 3, Apache 3, Socket.io 3, Axios 3, Composer 3, npm 3.
+
+  Data: PostgreSQL 1, Redis 1, MongoDB 2, MySQL 2, RabbitMQ 2, Kafka 2, Pub/Sub 2, BigQuery 2, DynamoDB 3, Elasticsearch 3.
+
+  Cloud: AWS 1, Google Cloud 1, Docker 1, Git 1, GitHub 1, Vercel 1, Kubernetes 2, GitHub Actions 2, Terraform 2, Android 2, GitLab 3, ArgoCD 3, CircleCI 3, Firebase 3, Datadog 3, Linux 3.
+
+  Integration / DX / AI: Okta 2, Stripe 2, Sanity 2, Cursor 2, SAP 3, Figma 3, Postman 3, Jira 3, Mapbox 3, Cypress 3, Jest 3, ESLint 3, Babel 3, VS Code 3, Claude 3, GPT 3 (monogram), Gemini 3, Lovable 3, Excel 3, Power BI 3, SharePoint 3 (monograms).
+
+- **Dark marks:** brand fill is lifted to `#e8eaf0` when relative luminance &lt; 0.25 (covers the prototype invert set without CSS `filter: invert`).
+- **Consequence.** Cloud looks like the prototype (color, depth, drag) and stays legal for this repo. Fixtures grow from 46 → 96; `icons:audit` must re-run. A 7th category is not added — AI/DX land in Integration so the chips stay the six §7 labels. Phone cull (`priority ≤ 2`) lands around 49 items. Five monograms remain (Excel, Power BI, SharePoint, VS Code, GPT).
+
 ## 5. Contradictions found in the spec and how they are resolved
 
 1. `dynamicParams` "stays on" (§3.1, §8.5) vs Cache Components rejecting the export → D1.
@@ -303,10 +336,11 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 8. "Skip to content" (§3.2) vs "Skip to main content" (§14.1) → D17.
 9. Only `/` negotiates (§3.1, §6) vs next-intl redirecting every unprefixed path → D3.
 10. Uploads up to 10 MB (§12.7) vs Vercel's function body limit → R3.
-11. Appendix C counts verified: 18 / 17 / 11 = 46; phones render 35 (§7 says "about 36": consistent).
+11. Appendix C counts were 18 / 17 / 11 = 46; D37 expands the seed to 96 (21 / 28 / 47), phones render priority ≤ 2 (~49).
 12. `sanity/schema/*.ts` with `defineType` (§11.10) vs no Studio dependency (D7) → D29.
 13. Filter Motion layout (§8.4) vs Server Component cards → D34.
 14. Prerendered `/projects` vs `searchParams` making the segment dynamic → D35.
+15. §7 monochrome sphere + 46-item Appendix C vs the owner’s `techs-cloud` prototype → D37.
 
 ## 6. Risks
 

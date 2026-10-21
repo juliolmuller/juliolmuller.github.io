@@ -84,7 +84,14 @@
       "cloud": "Cloud & DevOps",
       "integration": "Integrations & automation"
     },
-    "practicesTitle": "Practices and concepts"
+    "practicesTitle": "Practices and concepts",
+    "viewLabel": "Stack view",
+    "viewCloud": "Cloud",
+    "viewList": "List",
+    "switchToList": "Switch to list view",
+    "filterLabel": "Filter by category",
+    "cloudHint": "Hover or tap a logo to see its name.",
+    "officialSite": "Official site ↗"
   },
   "work": {
     "eyebrow": "Work",

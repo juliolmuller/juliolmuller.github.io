@@ -1,12 +1,26 @@
+import { getTranslations } from 'next-intl/server';
+
 import { Reveal } from '@/components/ui/reveal';
 import type { Profile } from '@/lib/content';
 
-/** Full-width pull quote between About and Experience; hidden when empty. */
-export function Quote({ quote }: { quote: Profile['featuredQuote'] }) {
+/** Pull-quote band after the hero; hidden when empty (D46). */
+export async function Quote({ quote }: { quote: Profile['featuredQuote'] }) {
   if (!quote?.text) return null;
+  const t = await getTranslations('quote');
+
   return (
-    <div className="border-y border-line bg-bg-1">
+    <section
+      id="quote"
+      aria-labelledby="quote-title"
+      className="border-y border-line bg-bg-1"
+    >
       <Reveal className="container-page py-16 md:py-24">
+        <h2
+          id="quote-title"
+          className="mb-8 text-center font-label text-text-3"
+        >
+          {t('eyebrow')}
+        </h2>
         <figure className="mx-auto max-w-4xl text-center">
           <span
             aria-hidden="true"
@@ -24,6 +38,6 @@ export function Quote({ quote }: { quote: Profile['featuredQuote'] }) {
           ) : null}
         </figure>
       </Reveal>
-    </div>
+    </section>
   );
 }

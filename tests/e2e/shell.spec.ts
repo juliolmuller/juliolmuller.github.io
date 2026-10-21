@@ -81,6 +81,28 @@ for (const locale of ['en', 'pt'] as const) {
       expect(html).toContain('href="#main"');
     });
 
+    test('home sections follow the résumé-after-work order', async ({
+      request,
+    }) => {
+      const response = await request.get(`/${locale}`);
+      expect(response.status()).toBe(200);
+      const html = await response.text();
+      const ids = [
+        'top',
+        'quote',
+        'summary',
+        'about',
+        'stack',
+        'work',
+        'resume',
+        'contact',
+        'recommended',
+      ];
+      const indexes = ids.map((id) => html.indexOf(`id="${id}"`));
+      expect(indexes.every((index) => index >= 0)).toBe(true);
+      expect(indexes).toEqual([...indexes].sort((a, b) => a - b));
+    });
+
     test('has no axe violations', async ({ page, browserName }) => {
       skipAxeOnWebkit(browserName);
       await page.goto(`/${locale}`);

@@ -19,9 +19,9 @@
     "primaryNav": "Principal",
     "nav": {
       "about": "Sobre",
-      "experience": "Experiência",
       "stack": "Stack",
       "work": "Projetos",
+      "resume": "Currículo",
       "contact": "Contato"
     },
     "backToWork": "Voltar aos projetos",
@@ -47,30 +47,41 @@
     "resume": "Currículo (PDF)",
     "currentRole": "Hoje: {title} na {company}",
     "linksLabel": "Perfis e links",
-    "scrollCue": "Rolar até a seção sobre mim"
+    "scrollCue": "Rolar até a próxima seção"
   },
-  "about": {
-    "eyebrow": "Sobre",
-    "title": "Quem sou e como trabalho",
+  "quote": {
+    "eyebrow": "Frases do momento"
+  },
+  "summary": {
+    "eyebrow": "Resumo",
+    "title": "Em um relance",
     "factsTitle": "Em poucas palavras",
     "location": "Moro em",
     "languages": "Idiomas",
     "focus": "Foco",
     "metricsLabel": "Em números"
   },
-  "experience": {
-    "eyebrow": "Experiência",
-    "title": "Por onde passei",
+  "about": {
+    "eyebrow": "Sobre",
+    "title": "Quem sou e como trabalho"
+  },
+  "resume": {
+    "eyebrow": "Currículo",
+    "title": "Trabalho e formação",
+    "lead": "A versão curta de por onde passei e o que estudei. O PDF e o LinkedIn têm o resto.",
+    "tablist": "Seções do currículo",
+    "experienceTab": "Experiência",
+    "educationTab": "Formação",
     "present": "Atual",
-    "showMore": "Ver detalhes",
     "technologies": "Tecnologias",
-    "educationTitle": "Formação e certificações",
     "kinds": {
       "degree": "Graduação",
       "certification": "Certificação"
     },
     "viewCredential": "Ver credencial",
-    "viewCredentialLabel": "{title}: ver credencial (abre em uma nova aba)"
+    "viewCredentialLabel": "{title}: ver credencial (abre em uma nova aba)",
+    "download": "Baixar currículo (PDF)",
+    "downloadOther": "Também em {language} (PDF)"
   },
   "stack": {
     "eyebrow": "Stack",

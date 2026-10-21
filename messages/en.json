@@ -19,9 +19,9 @@
     "primaryNav": "Primary",
     "nav": {
       "about": "About",
-      "experience": "Experience",
       "stack": "Stack",
       "work": "Work",
+      "resume": "Résumé",
       "contact": "Contact"
     },
     "backToWork": "Back to work",
@@ -47,30 +47,41 @@
     "resume": "Résumé (PDF)",
     "currentRole": "Now: {title} at {company}",
     "linksLabel": "Profiles and links",
-    "scrollCue": "Scroll to the about section"
+    "scrollCue": "Scroll to the next section"
   },
-  "about": {
-    "eyebrow": "About",
-    "title": "Who I am and how I work",
+  "quote": {
+    "eyebrow": "Quotes of the moment"
+  },
+  "summary": {
+    "eyebrow": "Summary",
+    "title": "At a glance",
     "factsTitle": "Quick facts",
     "location": "Based in",
     "languages": "Languages",
     "focus": "Focus",
     "metricsLabel": "In numbers"
   },
-  "experience": {
-    "eyebrow": "Experience",
-    "title": "Where I have worked",
+  "about": {
+    "eyebrow": "About",
+    "title": "Who I am and how I work"
+  },
+  "resume": {
+    "eyebrow": "Résumé",
+    "title": "Work and education",
+    "lead": "The short version of where I have worked and studied. Download the PDF or open LinkedIn for the rest.",
+    "tablist": "Résumé sections",
+    "experienceTab": "Experience",
+    "educationTab": "Education",
     "present": "Present",
-    "showMore": "Show details",
     "technologies": "Technologies",
-    "educationTitle": "Education and certifications",
     "kinds": {
       "degree": "Degree",
       "certification": "Certification"
     },
     "viewCredential": "View credential",
-    "viewCredentialLabel": "{title}: view credential (opens in a new tab)"
+    "viewCredentialLabel": "{title}: view credential (opens in a new tab)",
+    "download": "Download résumé (PDF)",
+    "downloadOther": "Also in {language} (PDF)"
   },
   "stack": {
     "eyebrow": "Stack",

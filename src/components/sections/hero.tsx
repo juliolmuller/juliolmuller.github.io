@@ -28,6 +28,7 @@ interface HeroProps {
   links: FeaturedLink[];
   experience: Experience[];
   hasResume: boolean;
+  nextSection: 'quote' | 'summary' | 'stack';
 }
 
 function Headline({ text }: { text: string }) {
@@ -54,6 +55,7 @@ export async function Hero({
   links,
   experience,
   hasResume,
+  nextSection,
 }: HeroProps) {
   const [t, tA11y] = await Promise.all([
     getTranslations('hero'),
@@ -175,7 +177,7 @@ export async function Hero({
       </div>
 
       <div className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 md:block">
-        <ScrollCue href="#about" label={t('scrollCue')} />
+        <ScrollCue href={`#${nextSection}`} label={t('scrollCue')} />
       </div>
     </section>
   );

@@ -374,6 +374,12 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 - **Decision.** Lerp a `dimMultiplier` toward 1 or `CATEGORY_DIM` (factor `0.12`, ~250ms). Depth opacity stays a direct rAF write. Pointer-events still switch immediately. A paused geoid snaps.
 - **Consequence.** Chip toggles cross-fade; orbit dimming stays sharp.
 
+### D46 — Home section order: quote, summary, résumé tabs
+
+- **Context.** The owner asked to rearrange Home to Hero → Quotes of the moment → Summary → About → Stack → Work → overall résumé (experience + education + PDF + LinkedIn, contracted) → Contact → Recommendations.
+- **Decision.** Split the old About block: Summary (`#summary`) is facts + up to 4 metrics; About (`#about`) is the bio. The featured quote (`#quote`) sits after the hero with the eyebrow “Quotes of the moment” / “Frases do momento”; still one `featuredQuote` (no CMS array). The career block is `#resume` with native radio tabs (Experience | Education) styled as a pill; CSS `:has()` shows the matching panel so the first HTML matches the client and no-JS can still switch. Jobs are all native `<details>`; the current role (`end` empty) starts open. CTAs are the locale PDF plus the owner’s LinkedIn (`isOwnProfile` and url/id containing `linkedin`). Nav is About · Stack · Work · Résumé · Contact. Quote, Summary and Recommendations stay off the primary nav. Hashes `#experience` / `#education` / `#resume` still resolve. `collapsedByDefault` stays in the schema but no longer drives the public UI.
+- **Consequence.** Recruiters hit the quote and numbers before the bio; the long timeline is opt-in. Bookmarks to `#experience` still work. Radios rather than exclusive `<details name>` because the two panes are different document shapes.
+
 ## 5. Contradictions found in the spec and how they are resolved
 
 1. `dynamicParams` "stays on" (§3.1, §8.5) vs Cache Components rejecting the export → D1.
@@ -399,6 +405,7 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 21. D40/D42 right-aligned chips vs the owner centering them → D43.
 22. D37 unmatched still hoverable vs exclusive filter interaction → D44.
 23. CSS opacity transition vs per-frame depth fade → D45 (lerp only the filter dim).
+24. Original §3.2/§3.3 order (About → quote → Experience timeline → … → Recommended → Contact) vs the owner’s requested Home order → D46.
 
 ## 6. Risks
 

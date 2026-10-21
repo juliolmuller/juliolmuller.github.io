@@ -1,8 +1,8 @@
 export const NAV_SECTIONS = [
   'about',
-  'experience',
   'stack',
   'work',
+  'resume',
   'contact',
 ] as const;
 

@@ -4,11 +4,12 @@ import { getTranslations } from 'next-intl/server';
 
 import { About } from '@/components/sections/about';
 import { Contact } from '@/components/sections/contact';
-import { Experience } from '@/components/sections/experience';
 import { Hero } from '@/components/sections/hero';
 import { Quote } from '@/components/sections/quote';
 import { Recommended } from '@/components/sections/recommended';
+import { Resume } from '@/components/sections/resume';
 import { Stack } from '@/components/sections/stack';
+import { Summary } from '@/components/sections/summary';
 import { Work } from '@/components/sections/work';
 import { JsonLd } from '@/components/seo/json-ld';
 import { owner } from '@/config/site';
@@ -92,6 +93,11 @@ export default async function HomePage() {
   const featured = featuredProjects(projects);
   const hasResume = Boolean(resume?.files[locale]);
   const listId = `${absoluteUrl(localizedPath(locale))}#work`;
+  const nextSection = profile?.featuredQuote?.text
+    ? 'quote'
+    : profile
+      ? 'summary'
+      : 'stack';
 
   const jsonLd = graph(
     websiteNode(),
@@ -120,30 +126,34 @@ export default async function HomePage() {
         links={links}
         experience={experience}
         hasResume={hasResume}
+        nextSection={nextSection}
       />
-      {profile ? <About locale={locale} profile={profile} /> : null}
       <Quote quote={profile?.featuredQuote} />
-      {experience.length > 0 || education.length > 0 ? (
-        <Experience
-          locale={locale}
-          experience={experience}
-          education={education}
-          technologies={technologies}
-        />
-      ) : null}
+      {profile ? <Summary locale={locale} profile={profile} /> : null}
+      {profile ? <About profile={profile} /> : null}
       {technologies.length > 0 ? (
         <Stack technologies={technologies} practices={practices} />
       ) : null}
       {featured.length > 0 ? (
         <Work projects={featured} technologies={technologies} />
       ) : null}
-      <Recommended profiles={recommended} />
+      {experience.length > 0 || education.length > 0 ? (
+        <Resume
+          locale={locale}
+          experience={experience}
+          education={education}
+          technologies={technologies}
+          resume={resume}
+          links={links}
+        />
+      ) : null}
       <Contact
         locale={locale}
         contact={contact}
         links={links}
         resume={resume}
       />
+      <Recommended profiles={recommended} />
     </>
   );
 }

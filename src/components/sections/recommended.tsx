@@ -28,7 +28,7 @@ export async function Recommended({
       <div className="container-page">
         <SectionHeader
           id="recommended-title"
-          index={5}
+          index={7}
           eyebrow={t('eyebrow')}
           title={t('title')}
           lead={t('lead')}

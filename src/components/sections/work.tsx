@@ -24,7 +24,7 @@ export async function Work({
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeader
             id="work-title"
-            index={4}
+            index={3}
             eyebrow={t('eyebrow')}
             title={t('title')}
             lead={t('lead')}

@@ -90,8 +90,8 @@ for (const locale of ['en', 'pt'] as const) {
       const ids = [
         'top',
         'quote',
-        'summary',
         'about',
+        'summary',
         'stack',
         'work',
         'resume',

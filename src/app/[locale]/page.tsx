@@ -9,7 +9,6 @@ import { Quote } from '@/components/sections/quote';
 import { Recommended } from '@/components/sections/recommended';
 import { Resume } from '@/components/sections/resume';
 import { Stack } from '@/components/sections/stack';
-import { Summary } from '@/components/sections/summary';
 import { Work } from '@/components/sections/work';
 import { JsonLd } from '@/components/seo/json-ld';
 import { owner } from '@/config/site';
@@ -96,7 +95,7 @@ export default async function HomePage() {
   const nextSection = profile?.featuredQuote?.text
     ? 'quote'
     : profile
-      ? 'summary'
+      ? 'about'
       : 'stack';
 
   const jsonLd = graph(
@@ -129,8 +128,7 @@ export default async function HomePage() {
         nextSection={nextSection}
       />
       <Quote quote={profile?.featuredQuote} />
-      {profile ? <Summary locale={locale} profile={profile} /> : null}
-      {profile ? <About profile={profile} /> : null}
+      {profile ? <About locale={locale} profile={profile} /> : null}
       {technologies.length > 0 ? (
         <Stack technologies={technologies} practices={practices} />
       ) : null}

@@ -387,6 +387,12 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 - **Decision.** Profile gains optional `photoLg`. Fixtures encode `profile-photo.jpg` → 800×800 WebP and the transparent 3:4 PNG (`julio_retrato_fundo_transparente_degrade.png`) → 720×964 WebP with alpha preserved; authored specs skip SVG generation. Hero uses `getImageProps` + `<picture>` (`min-width: 1024px` → lg, else square) with `priority` and sizes for LCP; square accent-ring frame below `lg`; from `lg` up the 3:4 `photoLg` is frameless, fluid (`clamp` on width, 18rem–31.5rem), and blends into the hero (alpha, no card). Headline copy is “Messy problems, reliable software.” / “Problemas bagunçados, software confiável.” Gradient moves onto each rotating word; the wrapper is a clipped `h-[1.2em]` slot. Owner photos are real identity (same bucket as name/title/city) but still flow only through `getContent()`.
 - **Consequence.** One hero image downloads per viewport. OG/JSON-LD keep the square `photo`. `fixtures:generate` no longer wipes the portrait masters. Sanity needs a `photoLg` field (optional) for the same art direction in production.
 
+### D48 — About absorbs Summary
+
+- **Context.** After D46 split About into Summary (facts + metrics) then bio, the owner asked to put the bio back on the left and a few stats on the right of the same section.
+- **Decision.** One `#about` section: `bio` in the existing measure column; up to 4 `metrics` as a 2×2 tile on the right from `lg` (stacked below on smaller screens). `#summary` stays on the stats list so old hashes and the e2e order check still resolve. Quick facts (`location`, `spokenLanguages`, `focus`) drop off the public page — they remain in the terminal snapshot. Section numbers after About decrement by one. Hero scroll-cue fallback is `#about`.
+- **Consequence.** Recruiters see who he is and the numbers in one viewport. A `#summary` bookmark lands on the tiles, not a missing section.
+
 ## 5. Contradictions found in the spec and how they are resolved
 
 1. `dynamicParams` "stays on" (§3.1, §8.5) vs Cache Components rejecting the export → D1.
@@ -414,6 +420,7 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 23. CSS opacity transition vs per-frame depth fade → D45 (lerp only the filter dim).
 24. Original §3.2/§3.3 order (About → quote → Experience timeline → … → Recommended → Contact) vs the owner’s requested Home order → D46.
 25. Appendix A “generated abstract avatar” + long H1 vs owner-supplied portraits and a shorter headline → D47.
+26. D46 Summary-then-About vs a single About with stats in the unused column → D48.
 
 ## 6. Risks
 

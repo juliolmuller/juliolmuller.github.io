@@ -243,7 +243,7 @@ export async function Resume({
       <div className="container-page">
         <SectionHeader
           id="resume-title"
-          index={5}
+          index={4}
           eyebrow={t('eyebrow')}
           title={t('title')}
           lead={t('lead')}

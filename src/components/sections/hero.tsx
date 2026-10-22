@@ -31,7 +31,7 @@ interface HeroProps {
   links: FeaturedLink[];
   experience: Experience[];
   hasResume: boolean;
-  nextSection: 'quote' | 'summary' | 'stack';
+  nextSection: 'quote' | 'about' | 'stack';
 }
 
 function HeadlineWord({

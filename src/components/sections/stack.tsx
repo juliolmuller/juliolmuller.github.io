@@ -26,7 +26,7 @@ export async function Stack({
       <div className="container-page">
         <SectionHeader
           id="stack-title"
-          index={3}
+          index={2}
           eyebrow={t('eyebrow')}
           title={t('title')}
           lead={t('lead')}

@@ -54,7 +54,7 @@ export async function Contact({
           />
           <SectionHeader
             id="contact-title"
-            index={6}
+            index={5}
             eyebrow={t('eyebrow')}
             title={contact?.ctaHeading ?? t('fallbackHeading')}
             lead={contact?.ctaText ?? t('fallbackText')}

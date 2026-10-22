@@ -164,6 +164,7 @@ export function createRepository(
         heroLead: pick(profile.heroLead, locale),
         rotatingWords: profile.rotatingWords.map((word) => pick(word, locale)),
         photo: image(profile.photo, locale),
+        photoLg: image(profile.photoLg, locale),
         bio: pick(profile.bio, locale),
         location: pick(profile.location, locale),
         spokenLanguages: profile.spokenLanguages.map((language) =>

@@ -154,6 +154,7 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 - **Decision.** `scripts/generate-fixtures.ts` (deterministic, seeded by slug) writes to `fixtures/images` and `fixtures/pdf`; outputs are committed (WebP/AVIF sized for 1600×1000; ~2–3 MB total). The PDF is a hand-built minimal PDF (no JS, no external fonts), no extra dependency.
 - **Consequence.** `fixtures` adapter serves them via a static route; the seed script uploads the same files.
 - **Update (Phase 2).** Outputs go to `public/fixtures/{images,pdf}` (Next serves them; `images.localPatterns` allows `/fixtures/images/**`, the proxy passes `/fixtures` through) plus a manifest, `src/lib/content/fixtures/assets.generated.ts` (dimensions, 20 px LQIP data URL, byte sizes). WebP q82 only, since `next/image` produces AVIF on demand: 13 images + 2 PDFs = 129 KB. Regenerate with `bun run fixtures:generate`; output is byte-stable.
+- **Update (D47).** Authored keys (`profile-photo`, `profile-photo-lg`) encode from committed jpg/png masters and are never SVG-regenerated.
 
 ### D15 — Dependency build scripts allowlist
 
@@ -380,6 +381,12 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 - **Decision.** Split the old About block: Summary (`#summary`) is facts + up to 4 metrics; About (`#about`) is the bio. The featured quote (`#quote`) sits after the hero with the eyebrow “Quotes of the moment” / “Frases do momento”; still one `featuredQuote` (no CMS array). The career block is `#resume` with native radio tabs (Experience | Education) styled as a pill; CSS `:has()` shows the matching panel so the first HTML matches the client and no-JS can still switch. Jobs are all native `<details>`; the current role (`end` empty) starts open. CTAs are the locale PDF plus the owner’s LinkedIn (`isOwnProfile` and url/id containing `linkedin`). Nav is About · Stack · Work · Résumé · Contact. Quote, Summary and Recommendations stay off the primary nav. Hashes `#experience` / `#education` / `#resume` still resolve. `collapsedByDefault` stays in the schema but no longer drives the public UI.
 - **Consequence.** Recruiters hit the quote and numbers before the bio; the long timeline is opt-in. Bookmarks to `#experience` still work. Radios rather than exclusive `<details name>` because the two panes are different document shapes.
 
+### D47 — Hero art direction and concise headline
+
+- **Context.** The owner supplied a square jpg and a 3:4 png for the hero, asked for a shorter H1, and the rotating line was stacking every word because `text-gradient` (`background-clip: text`) lived on the shared grid wrapper.
+- **Decision.** Profile gains optional `photoLg`. Fixtures encode `profile-photo.jpg` → 800×800 WebP and the transparent 3:4 PNG (`julio_retrato_fundo_transparente_degrade.png`) → 720×964 WebP with alpha preserved; authored specs skip SVG generation. Hero uses `getImageProps` + `<picture>` (`min-width: 1024px` → lg, else square) with `priority` and sizes for LCP; square accent-ring frame below `lg`; from `lg` up the 3:4 `photoLg` is frameless, fluid (`clamp` on width, 18rem–31.5rem), and blends into the hero (alpha, no card). Headline copy is “Messy problems, reliable software.” / “Problemas bagunçados, software confiável.” Gradient moves onto each rotating word; the wrapper is a clipped `h-[1.2em]` slot. Owner photos are real identity (same bucket as name/title/city) but still flow only through `getContent()`.
+- **Consequence.** One hero image downloads per viewport. OG/JSON-LD keep the square `photo`. `fixtures:generate` no longer wipes the portrait masters. Sanity needs a `photoLg` field (optional) for the same art direction in production.
+
 ## 5. Contradictions found in the spec and how they are resolved
 
 1. `dynamicParams` "stays on" (§3.1, §8.5) vs Cache Components rejecting the export → D1.
@@ -406,6 +413,7 @@ Latest stable unless noted. Majors are pinned with `^`; exact versions come from
 22. D37 unmatched still hoverable vs exclusive filter interaction → D44.
 23. CSS opacity transition vs per-frame depth fade → D45 (lerp only the filter dim).
 24. Original §3.2/§3.3 order (About → quote → Experience timeline → … → Recommended → Contact) vs the owner’s requested Home order → D46.
+25. Appendix A “generated abstract avatar” + long H1 vs owner-supplied portraits and a shorter headline → D47.
 
 ## 6. Risks
 

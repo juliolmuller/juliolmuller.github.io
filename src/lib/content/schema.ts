@@ -170,6 +170,8 @@ export const profileSchema = z.object({
   heroLead: localized(280),
   rotatingWords: z.array(localized(40)).min(1).max(6),
   photo: imageSchema.optional(),
+  /** Side-by-side hero art (lg+); falls back to `photo` when absent. */
+  photoLg: imageSchema.optional(),
   bio: localizedMarkdown(1500),
   location: localized(80),
   spokenLanguages: z.array(localized(60)).min(1).max(6),

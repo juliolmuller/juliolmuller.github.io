@@ -37,14 +37,15 @@ export function describeRepositoryContract(
       const pt = await repository.getProfile('pt');
       expect(en?.displayName).toBe(owner.name);
       expect(en?.jobTitle).toBe(owner.jobTitle);
-      expect(en?.heroHeadline).toBe(
-        'Turning ambiguous problems into reliable software.',
-      );
+      expect(en?.heroHeadline).toBe('Messy problems, reliable software.');
       expect(pt?.heroHeadline).not.toBe(en?.heroHeadline);
       expect(en?.rotatingWords).toHaveLength(5);
       expect(en?.metrics).toHaveLength(4);
       expect(en?.photo?.alt).toBeTruthy();
       expect(pt?.photo?.alt).not.toBe(en?.photo?.alt);
+      expect(en?.photo?.width).toBe(en?.photo?.height);
+      expect(en?.photoLg?.url).toBeTruthy();
+      expect(en?.photoLg?.url).not.toBe(en?.photo?.url);
     });
 
     it('never exposes the phone unless showPhone is on', async () => {

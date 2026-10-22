@@ -120,6 +120,7 @@ const documents: SchemaType[] = [
       localeText('heroLead'),
       field('rotatingWords', 'array', { of: [{ type: 'localeString' }] }),
       image('photo'),
+      image('photoLg'),
       field('bio', 'localeText'),
       localeString('location'),
       field('spokenLanguages', 'array', { of: [{ type: 'localeString' }] }),

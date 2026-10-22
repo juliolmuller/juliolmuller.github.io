@@ -39,7 +39,7 @@
     }
   },
   "hero": {
-    "eyebrow": "{jobTitle} · {city}",
+    "eyebrow": "{jobTitle}",
     "rotatingPrefix": "I build",
     "rotatingSentence": "I build {list}.",
     "seeWork": "See my work",

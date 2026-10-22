@@ -15,6 +15,7 @@ const TECH_REFS = /* groq */ `*[_type == "technology"]{ "id": _id, visible }`;
 export const PROFILE_QUERY = /* groq */ `*[_id == "profile"][0]{
   ${META}, displayName, jobTitle, heroHeadline, heroLead, rotatingWords,
   "photo": photo{ ${IMAGE} },
+  "photoLg": photoLg{ ${IMAGE} },
   bio, location, spokenLanguages, focus,
   metrics[]{ value, label, countTo, prefix, suffix },
   featuredQuote{ text, attribution }

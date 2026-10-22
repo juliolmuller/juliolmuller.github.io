@@ -3,13 +3,15 @@ import { owner } from '@/config/site';
 import type { DocumentInput } from '../../schema';
 import { L, fixtureImage, singletonMeta } from '../helpers';
 
+const photoAlt = L('Portrait of Julio L. Muller', 'Retrato de Julio L. Muller');
+
 export const profile: DocumentInput<'profile'> = {
   ...singletonMeta('profile'),
   displayName: owner.name,
   jobTitle: L(owner.jobTitle, 'Engenheiro de Software Full Stack Sênior'),
   heroHeadline: L(
-    'Turning ambiguous problems into reliable software.',
-    'Transformo problemas ambíguos em software confiável.',
+    'Messy problems, reliable software.',
+    'Problemas bagunçados, software confiável.',
   ),
   heroLead: L(
     'I design and build software end to end, from the first sketch of a data model to the last pixel of the interface. Web systems are where I do my best work.',
@@ -22,14 +24,8 @@ export const profile: DocumentInput<'profile'> = {
     L('integrations', 'integrações'),
     L('APIs', 'APIs'),
   ],
-  photo: fixtureImage(
-    'profile-photo',
-    L(
-      'Abstract avatar: amber and violet gradient with concentric rings',
-      'Avatar abstrato: gradiente âmbar e violeta com anéis concêntricos',
-    ),
-    { x: 0.5, y: 0.45 },
-  ),
+  photo: fixtureImage('profile-photo', photoAlt, { x: 0.5, y: 0.4 }),
+  photoLg: fixtureImage('profile-photo-lg', photoAlt, { x: 0.5, y: 0.35 }),
   bio: L(
     [
       'I am a web-first full stack engineer. Most of my work lives in the browser and on the servers behind it, and I also build mobile and desktop apps, automations and integrations when the problem calls for them.',

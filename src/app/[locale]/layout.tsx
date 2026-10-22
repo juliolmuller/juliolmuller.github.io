@@ -71,7 +71,7 @@ export default async function LocaleLayout({
       className={fontVariables}
       suppressHydrationWarning
     >
-      <body>
+      <body suppressHydrationWarning>
         <MotionInit />
         <NextIntlClientProvider messages={clientMessages}>
           <MotionProvider>

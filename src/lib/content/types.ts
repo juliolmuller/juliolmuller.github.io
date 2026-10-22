@@ -41,6 +41,8 @@ export interface Profile {
   heroLead: string;
   rotatingWords: string[];
   photo?: ImageRef;
+  /** Side-by-side hero art (lg+); falls back to `photo` when absent. */
+  photoLg?: ImageRef;
   /** Markdown. */
   bio: string;
   location: string;

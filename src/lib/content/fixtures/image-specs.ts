@@ -1,15 +1,25 @@
 /**
  * Placeholder art rendered by `scripts/generate-fixtures.ts` into
  * `public/fixtures/`. Abstract only: no text, logos or fake UI screenshots.
+ * Authored masters (real photos) are encoded from the listed source files.
  */
 
 export type FixtureArtStyle = 'cover' | 'avatar' | 'portrait';
+
+export interface FixtureAuthoredSource {
+  /** Filename under `public/fixtures/images/`. */
+  source: string;
+  fit: 'cover' | 'inside';
+  /** Keep an alpha channel (lossy WebP otherwise flattens it). */
+  alpha?: boolean;
+}
 
 export interface FixtureImageSpec {
   key: string;
   style: FixtureArtStyle;
   width: number;
   height: number;
+  authored?: FixtureAuthoredSource;
 }
 
 const cover = (key: string): FixtureImageSpec => ({
@@ -27,7 +37,24 @@ const avatar = (key: string): FixtureImageSpec => ({
 });
 
 export const fixtureImageSpecs = [
-  { key: 'profile-photo', style: 'portrait', width: 800, height: 800 },
+  {
+    key: 'profile-photo',
+    style: 'portrait',
+    width: 800,
+    height: 800,
+    authored: { source: 'profile-photo.jpg', fit: 'cover' },
+  },
+  {
+    key: 'profile-photo-lg',
+    style: 'portrait',
+    width: 720,
+    height: 964,
+    authored: {
+      source: 'julio_retrato_fundo_transparente_degrade.png',
+      fit: 'inside',
+      alpha: true,
+    },
+  },
   avatar('avatar-ada-sample'),
   avatar('avatar-marco-placeholder'),
   avatar('avatar-lin-example'),

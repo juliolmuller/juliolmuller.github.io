@@ -11,6 +11,7 @@ const CADENCE_MS = 2600;
  * Visual-only rotating word (the sentence is announced once through
  * sr-only text next to it). Every word is laid out in the same grid cell,
  * so the line keeps the width of the longest word and never shifts.
+ * Gradient is per-word so clipped siblings do not paint into one clip.
  */
 export function RotatingWords({
   words,
@@ -52,7 +53,10 @@ export function RotatingWords({
     <span
       ref={ref}
       aria-hidden="true"
-      className={cn('inline-grid overflow-hidden align-bottom', className)}
+      className={cn(
+        'inline-grid h-[1.2em] overflow-hidden align-bottom',
+        className,
+      )}
     >
       {words.map((word, wordIndex) => {
         const offset = wordIndex - current;
@@ -60,7 +64,7 @@ export function RotatingWords({
           <span
             key={word}
             className={cn(
-              'col-start-1 row-start-1 whitespace-nowrap transition-[transform,opacity] duration-500 ease-out-expo',
+              'col-start-1 row-start-1 text-gradient whitespace-nowrap transition-[transform,opacity] duration-500 ease-out-expo',
               offset === 0
                 ? 'translate-y-0 opacity-100'
                 : offset < 0

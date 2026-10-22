@@ -109,7 +109,47 @@ ${rings}
 </svg>`;
 }
 
+async function encodeAuthored(spec: FixtureImageSpec) {
+  const authored = spec.authored;
+  if (!authored) {
+    throw new Error(`Fixture "${spec.key}" has no authored source`);
+  }
+  const sourcePath = path.join(PUBLIC_DIR, 'images', authored.source);
+  const resized = sharp(sourcePath).resize(spec.width, spec.height, {
+    fit: authored.fit,
+    position: 'centre',
+    withoutEnlargement: true,
+  });
+  const webp = authored.alpha
+    ? await resized
+        .webp({ quality: 82, alphaQuality: 90, effort: 6 })
+        .toBuffer()
+    : await resized
+        .webp({ quality: 82, effort: 6, smartSubsample: true })
+        .toBuffer();
+  const meta = await sharp(webp).metadata();
+  const lqip = await sharp(webp)
+    .flatten({ background: '#11141b' })
+    .resize(20)
+    .jpeg({ quality: 50 })
+    .toBuffer();
+  const file = `images/${spec.key}.webp`;
+  await writeFile(path.join(PUBLIC_DIR, file), webp);
+  return {
+    key: spec.key,
+    asset: {
+      url: `/fixtures/${file}`,
+      width: meta.width ?? spec.width,
+      height: meta.height ?? spec.height,
+      lqip: `data:image/jpeg;base64,${lqip.toString('base64')}`,
+    },
+    bytes: webp.length,
+  };
+}
+
 async function renderImage(spec: FixtureImageSpec) {
+  if (spec.authored) return encodeAuthored(spec);
+
   const rand = random(spec.key);
   const svg =
     spec.style === 'cover' ? coverSvg(spec, rand) : roundSvg(spec, rand);

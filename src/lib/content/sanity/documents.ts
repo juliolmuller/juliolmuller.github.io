@@ -110,6 +110,7 @@ const converters: Converters = {
       heroLead: localeText(doc.heroLead),
       rotatingWords: localeStrings(doc.id, 'rotatingWords', doc.rotatingWords),
       photo: optional(doc.photo, (photo) => image(assets, photo)),
+      photoLg: optional(doc.photoLg, (photo) => image(assets, photo)),
       bio: localeText(doc.bio),
       location: localeString(doc.location),
       spokenLanguages: localeStrings(
